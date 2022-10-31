@@ -65,7 +65,7 @@ namespace wpf_imageCrawler
 
             /** Test **/
             
-            this.TextBox_XPathSelector.Text = "//div[@class=\"bbImageWrapper  js-lbImage\"]/img";
+            this.TextBox_XPathSelector.Text = @"//img";
             this.Textbox_AttributeSelector.Text = "src";
             
         }

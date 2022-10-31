@@ -76,6 +76,13 @@ namespace wpf_imageCrawler.src.service
             try
             {
                 TimeSpan timeout = TimeSpan.FromSeconds(5);
+                await PageInstance.EvaluateExpressionAsync("window.scrollBy(0,window.document.body.scrollHeight)").WaitAsync(timeout, token);
+            }
+            catch { ; }
+
+            try
+            {
+                TimeSpan timeout = TimeSpan.FromSeconds(5);
 
                 NavigationOptions opitions = new NavigationOptions();
                 opitions.WaitUntil = new[] { WaitUntilNavigation.Networkidle2 };
@@ -91,10 +98,10 @@ namespace wpf_imageCrawler.src.service
             }
             catch { ; }
 
-            // await PageInstance.EvaluateExpressionAsync("window.scrollBy(0,window.document.body.scrollHeight)").WaitAsync(TimeSpan.FromSeconds(15), token);
+            
             try
             {
-                TimeSpan timeout = TimeSpan.FromSeconds(15);
+                TimeSpan timeout = TimeSpan.FromSeconds(5);
                 result = await PageInstance.GetContentAsync().WaitAsync(timeout, token);
             } 
             catch { throw; }
