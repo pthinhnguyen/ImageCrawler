@@ -64,13 +64,8 @@ namespace wpf_imageCrawler
 
             /** Test **/
 
-            this.TextBox_MainURL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875";
-            this.TextBox_XPathSelector.Text = "//div[@class=\"bbImageWrapper  js-lbImage\"]/img";
+            this.TextBox_XPathSelector.Text = "//img";
             this.Textbox_AttributeSelector.Text = "src";
-            this.TextBox_Page2URL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875/page-2";
-            this.TextBox_Page3URL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875/page-3";
-            this.Textbox_FromPage.Text = "1";
-            this.Textbox_ToPage.Text = "10";
 
         }
 
