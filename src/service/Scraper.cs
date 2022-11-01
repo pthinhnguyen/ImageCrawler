@@ -19,93 +19,102 @@ namespace wpf_imageCrawler.src.service
 {
     public class Scraper
     {
-        static private IBrowser? BrowserIntance = null;
-        static private PuppeteerSharp.IPage? PageInstance = null;
-
-        private static async Task initializeBrowser(SettingData userSetting)
-        {
-            await disposeBrowser();
-            await new BrowserFetcher(Product.Firefox).DownloadAsync();
-            BrowserIntance = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Headless = false,
-                ExecutablePath = userSetting.BrowserPath
-                //Product = Product.Firefox
-            });
-            PageInstance = await BrowserIntance.NewPageAsync();
-        }
-
-        public static async Task disposeBrowser()
-        {
-            try
-            {
-                if (PageInstance is not null)
-                {
-                    await PageInstance.CloseAsync().WaitAsync(TimeSpan.FromSeconds(5));
-                    PageInstance.Dispose();
-                    PageInstance = null;
-                }
-
-                if (BrowserIntance is not null)
-                {
-                    await BrowserIntance.CloseAsync().WaitAsync(TimeSpan.FromSeconds(5));
-                    BrowserIntance.Dispose();
-                    BrowserIntance = null;
-                }
-            } catch { ; }
-        }
-
         public static async Task<string> getFullHTML(string url, SettingData userSetting, CancellationToken token)
         {
-            // token.ThrowIfCancellationRequested();
             string result = "";
-            await initializeBrowser(userSetting);
-            if (BrowserIntance is null || PageInstance is null) return "";
-
-            try
+            for (int attempt = 0; attempt < 3; attempt++)
             {
-                TimeSpan timeout = TimeSpan.FromSeconds(10);
-                
-                NavigationOptions opitions = new NavigationOptions();
-                opitions.WaitUntil = new[] { WaitUntilNavigation.Load };
-                opitions.Timeout = (int)timeout.TotalMilliseconds;
+                result = "";
 
-                await PageInstance.GoToAsync(url, opitions).WaitAsync(timeout, token);
-            } catch { ; }
+                // Initialize Browser
+                using IBrowser BrowserIntance = await Puppeteer.LaunchAsync(new LaunchOptions
+                {
+                    Headless = false,
+                    ExecutablePath = userSetting.BrowserPath
+                });
+                using IPage PageInstance = await BrowserIntance.NewPageAsync();
 
-            try
-            {
-                TimeSpan timeout = TimeSpan.FromSeconds(5);
-                await PageInstance.EvaluateExpressionAsync("window.scrollBy(0,window.document.body.scrollHeight)").WaitAsync(timeout, token);
+                // Get the page Content
+                try
+                {
+                    if (BrowserIntance is null || PageInstance is null) return result;
+
+                    // Access The Website
+                    try
+                    {
+                        TimeSpan timeout = TimeSpan.FromSeconds(10);
+
+                        NavigationOptions opitions = new NavigationOptions();
+                        opitions.WaitUntil = new[] { WaitUntilNavigation.DOMContentLoaded };
+                        opitions.Timeout = (int)timeout.TotalMilliseconds;
+
+                        await PageInstance.GoToAsync(url, opitions).WaitAsync(token);
+                    }
+                    catch (Exception ex)
+                    {
+                        ;
+                    }
+                    
+                    // Scroll to the bottom
+                    try
+                    {
+                        TimeSpan timeout = TimeSpan.FromSeconds(5);
+                        await PageInstance.EvaluateExpressionAsync("window.scrollBy(0,window.document.body.scrollHeight)").WaitAsync(timeout, token);
+                    }
+                    catch (Exception ex)
+                    {
+                        ;
+                    }
+
+                    // Wait to load the rest of the website
+                    try
+                    {
+                        
+                        int timeout = (int)TimeSpan.FromSeconds(7).TotalMilliseconds;
+                        await PageInstance.WaitForTimeoutAsync(timeout).WaitAsync(token);
+                    }
+                    catch (Exception ex)
+                    {
+                        ;
+                    }
+
+                    // Get the content
+                    try
+                    {
+                        TimeSpan timeout = TimeSpan.FromSeconds(5);
+                        result = await PageInstance.GetContentAsync().WaitAsync(timeout, token);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                    attempt = 3;
+                }
+                catch (OperationCanceledException)
+                {
+                    result = "";
+                    attempt = 3;
+                }
+                catch (Exception ex)
+                {
+                    result = "";
+                }
+                finally
+                {
+                    try
+                    {
+                        await PageInstance.CloseAsync().WaitAsync(TimeSpan.FromSeconds(5));
+                        PageInstance.Dispose();
+                    } catch { ; }
+                    
+                    try
+                    {
+                        await BrowserIntance.CloseAsync().WaitAsync(TimeSpan.FromSeconds(5));
+                        BrowserIntance.Dispose();
+                    } catch { ; }
+                }
             }
-            catch { ; }
 
-            try
-            {
-                TimeSpan timeout = TimeSpan.FromSeconds(5);
-
-                NavigationOptions opitions = new NavigationOptions();
-                opitions.WaitUntil = new[] { WaitUntilNavigation.Networkidle2 };
-                opitions.Timeout = (int)timeout.TotalMilliseconds;
-
-                await PageInstance.WaitForNavigationAsync(opitions).WaitAsync(timeout, token);
-            } catch { ; }
-
-            try
-            {
-                int timeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
-                await PageInstance.WaitForTimeoutAsync(timeout);
-            }
-            catch { ; }
-
-            
-            try
-            {
-                TimeSpan timeout = TimeSpan.FromSeconds(5);
-                result = await PageInstance.GetContentAsync().WaitAsync(timeout, token);
-            } 
-            catch { throw; }
-            finally { await disposeBrowser(); }
             return result;
         }
 
@@ -113,26 +122,8 @@ namespace wpf_imageCrawler.src.service
         {            
             // get full site html page, 3 attempts
             string fullHTML = "";
-            for (int retry = 0; retry < 3; retry ++)
-            {
-                try
-                {
-                    fullHTML = await getFullHTML(websiteData.MainURL, userSetting, token);
-                    break;
-                }
-                catch (OperationCanceledException)
-                {
-                    await disposeBrowser();
-                    return ("", new List<string>());
-                }
-                catch (Exception)
-                {
-                    await disposeBrowser();
-                    if (retry == 2) return ("", new List<string>());
-                    Thread.Sleep(1000);
-                }
-            }    
-            
+            fullHTML = await getFullHTML(websiteData.MainURL, userSetting, token);
+
             if (string.IsNullOrEmpty(fullHTML)) return ("", new List<string>());
 
             List<string> imageLinks = new List<string>();

@@ -255,18 +255,19 @@ namespace wpf_imageCrawler
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var t = Task.Run(async () =>
+            /*var t = Task.Run(async () =>
             {
                 try
                 {
                     // this.userSetting.saveUserSettings();
-                    await Scraper.disposeBrowser().WaitAsync(TimeSpan.FromSeconds(5));
+                    // await Scraper.disposeBrowser().WaitAsync(TimeSpan.FromSeconds(5));
                 }
                 finally
                 {
                     e.Cancel = false;
                 }
-            });
+            });*/
+            e.Cancel = false;
         }
 
         private bool AreFieldsValid()
