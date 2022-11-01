@@ -32,7 +32,6 @@ namespace wpf_imageCrawler
     {
         private static string downloadLocation = KnownFolders.GetPath(KnownFolder.Downloads);
         private static FolderBrowserDialog dialogFolder = new FolderBrowserDialog();
-        private static FieldValidator fieldValidator = new FieldValidator();
 
         // private SettingData settingData;
         private WebsiteData websiteData;
@@ -64,10 +63,15 @@ namespace wpf_imageCrawler
             this.Button_Download_Cancel.Visibility = Visibility.Hidden;
 
             /** Test **/
-            
-            this.TextBox_XPathSelector.Text = @"//img";
+
+            this.TextBox_MainURL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875";
+            this.TextBox_XPathSelector.Text = "//div[@class=\"bbImageWrapper  js-lbImage\"]/img";
             this.Textbox_AttributeSelector.Text = "src";
-            
+            this.TextBox_Page2URL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875/page-2";
+            this.TextBox_Page3URL.Text = @"https://voz.vn/t/no-sex-thoi-trang-xu-hoa-anh-dao-nhat-ban.624875/page-3";
+            this.Textbox_FromPage.Text = "1";
+            this.Textbox_ToPage.Text = "10";
+
         }
 
         public UserSetting UserSetting { get => userSetting; set => userSetting = value; }
@@ -123,8 +127,7 @@ namespace wpf_imageCrawler
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
+            e.Handled = FieldValidator.IsNumberText(e.Text);
         }
 
         private void Button_Setting_Click(object sender, RoutedEventArgs e)
@@ -221,7 +224,7 @@ namespace wpf_imageCrawler
             {
                 for (int i = 0; i < websiteData.ImageLinks.Count; i++)
                 {
-                    websiteData.ImageLinks[i] = fieldValidator.fixURL(websiteData.ImageLinks[i]);
+                    websiteData.ImageLinks[i] = FieldValidator.fixURL(websiteData.ImageLinks[i]);
                 }
             }
             this.updateTextBox_ImageLinks();
@@ -275,7 +278,7 @@ namespace wpf_imageCrawler
         {
             if (this.CheckBox_EnablePageSeriesDownload.IsChecked == false)
             {
-                if (fieldValidator.isValidRequiredInput(TextBox_MainURL.Text,
+                if (FieldValidator.isValidRequiredInput(TextBox_MainURL.Text,
                         TextBox_XPathSelector.Text) == false
                     )
                 {
@@ -291,7 +294,7 @@ namespace wpf_imageCrawler
             }
             else
             {
-                if (fieldValidator.isValidRequiredInput(TextBox_MainURL.Text,
+                if (FieldValidator.isValidRequiredInput(TextBox_MainURL.Text,
                         TextBox_XPathSelector.Text) == false
 
                     )
@@ -306,7 +309,7 @@ namespace wpf_imageCrawler
                 }
 
 
-                if (fieldValidator.isValidOptionalInput(
+                if (FieldValidator.isValidOptionalInput(
                         TextBox_Page2URL.Text,
                         TextBox_Page3URL.Text,
                         Textbox_FromPage.Text,

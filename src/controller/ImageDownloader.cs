@@ -33,7 +33,7 @@ namespace wpf_imageCrawler.src.controller
             this.isFreshClient = false;
         }
 
-        public async Task<bool> DownloadImageAsync(string directoryPath, string imageLink, int imageLinkOrder = 0, int minimumSizeByte = 1024)
+        public async Task<bool> DownloadImageAsync(string directoryPath, string imageLink, int imageLinkOrder = 1, int minimumSizeByte = 1024)
         {
             if (this._disposed) { throw new ObjectDisposedException(GetType().FullName); }
 

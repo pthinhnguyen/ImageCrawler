@@ -55,6 +55,7 @@ namespace wpf_imageCrawler.src.controller
             if (string.IsNullOrEmpty(this.userSettingData.DownloadLocation)) this.userSettingData.DownloadLocation = this.defaultUserSettingData.DownloadLocation;
             if (string.IsNullOrEmpty(this.userSettingData.BrowserPath)) this.userSettingData.BrowserPath = this.defaultUserSettingData.BrowserPath;
             if (this.userSettingData.MinImageSizeInByte < 64) this.userSettingData.MinImageSizeInByte = this.defaultUserSettingData.MinImageSizeInByte;
+            if (this.userSettingData.OrderStartingNumber < 1) this.userSettingData.OrderStartingNumber = this.defaultUserSettingData.OrderStartingNumber;
 
             return this.userSettingData;
         }
@@ -64,6 +65,7 @@ namespace wpf_imageCrawler.src.controller
             if (string.IsNullOrEmpty(userSettingData.DownloadLocation)) this.userSettingData.DownloadLocation = this.defaultUserSettingData.DownloadLocation;
             if (string.IsNullOrEmpty(userSettingData.BrowserPath)) this.userSettingData.BrowserPath = this.defaultUserSettingData.BrowserPath;
             if (userSettingData.MinImageSizeInByte < 64) this.userSettingData.MinImageSizeInByte = this.defaultUserSettingData.MinImageSizeInByte;
+            if (this.userSettingData.OrderStartingNumber < 1) this.userSettingData.OrderStartingNumber = this.defaultUserSettingData.OrderStartingNumber;
 
             this.writeUserSettingToXMLFile(this.userSettingData, this.userSettingFilePath);
 
@@ -97,6 +99,10 @@ namespace wpf_imageCrawler.src.controller
                 xmlWriter.WriteString(this.defaultUserSettingData.MinImageSizeInByte.ToString());
                 xmlWriter.WriteEndElement();
 
+                xmlWriter.WriteStartElement("OrderStartingNumber");
+                xmlWriter.WriteString(this.defaultUserSettingData.OrderStartingNumber.ToString());
+                xmlWriter.WriteEndElement();
+
                 xmlWriter.WriteEndDocument();
                 xmlWriter.Close();
             }
@@ -125,12 +131,14 @@ namespace wpf_imageCrawler.src.controller
             XmlNode? DownloadLocationNode;
             XmlNode? BrowserPathNode;
             XmlNode? MinImageSizeInByte;
+            XmlNode? OrderStartingNumber;
 
             if (xmlReader is not null && xmlReader.DocumentElement is not null)
             {
                 DownloadLocationNode = xmlReader.DocumentElement.SelectSingleNode("/Settings/User/DownloadLocation");
                 BrowserPathNode = xmlReader.DocumentElement.SelectSingleNode("/Settings/User/BrowserPath");
                 MinImageSizeInByte = xmlReader.DocumentElement.SelectSingleNode("/Settings/User/MinImageSizeInByte");
+                OrderStartingNumber = xmlReader.DocumentElement.SelectSingleNode("/Settings/User/OrderStartingNumber");
 
                 readingUserSettingData.DownloadLocation = (DownloadLocationNode is not null) ? DownloadLocationNode.InnerText : this.defaultUserSettingData.DownloadLocation;
                 readingUserSettingData.BrowserPath = (BrowserPathNode is not null) ? BrowserPathNode.InnerText : this.defaultUserSettingData.BrowserPath;
@@ -144,6 +152,17 @@ namespace wpf_imageCrawler.src.controller
                 catch
                 {
                     readingUserSettingData.MinImageSizeInByte = 0;
+                }
+                try
+                {
+                    if (OrderStartingNumber is not null)
+                        readingUserSettingData.OrderStartingNumber = Int32.Parse(OrderStartingNumber.InnerText);
+                    else
+                        readingUserSettingData.OrderStartingNumber = 0;
+                }
+                catch
+                {
+                    readingUserSettingData.OrderStartingNumber = 0;
                 }
             }
             else
@@ -169,16 +188,19 @@ namespace wpf_imageCrawler.src.controller
             XmlNode? DownloadLocationNode;
             XmlNode? BrowserPathNode;
             XmlNode? MinImageSizeInByte;
+            XmlNode? OrderStartingNumber;
 
             if (xmlWriter is not null && xmlWriter.DocumentElement is not null)
             {
                 DownloadLocationNode = xmlWriter.DocumentElement.SelectSingleNode("/Settings/User/DownloadLocation");
                 BrowserPathNode = xmlWriter.DocumentElement.SelectSingleNode("/Settings/User/BrowserPath");
                 MinImageSizeInByte = xmlWriter.DocumentElement.SelectSingleNode("/Settings/User/MinImageSizeInByte");
+                OrderStartingNumber = xmlWriter.DocumentElement.SelectSingleNode("/Settings/User/OrderStartingNumber");
 
                 if (DownloadLocationNode is not null) DownloadLocationNode.InnerText = userSetttingData.DownloadLocation;
                 if (BrowserPathNode is not null) BrowserPathNode.InnerText = userSetttingData.BrowserPath;
                 if (MinImageSizeInByte is not null) MinImageSizeInByte.InnerText = userSetttingData.MinImageSizeInByte.ToString();
+                if (OrderStartingNumber is not null) OrderStartingNumber.InnerText = userSetttingData.OrderStartingNumber.ToString();
 
                 xmlWriter.Save(xmlFilePath);
             }

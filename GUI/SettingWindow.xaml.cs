@@ -35,13 +35,14 @@ namespace wpf_imageCrawler.GUI
             this.mainWindow = mainWindow;
             InitializeComponent();
 
-            this.textBox_browserLocation.Text = this.mainWindow.UserSetting.UserSettingData.BrowserPath;
-            this.textBox_minimumImageSize.Text = this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte.ToString();
+            this.TextBox_BrowserLocation.Text = this.mainWindow.UserSetting.UserSettingData.BrowserPath;
+            this.TextBox_MinimumImageSize.Text = this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte.ToString();
+            this.TextBox_OrderStartingNumber.Text = this.mainWindow.UserSetting.UserSettingData.OrderStartingNumber.ToString();
         }
 
-        private void button_browserFileBrowse_Click(object sender, RoutedEventArgs e)
+        private void Button_BrowserFileBrowse_Click(object sender, RoutedEventArgs e)
         {
-            string resultSelectedPath = this.textBox_browserLocation.Text;
+            string resultSelectedPath = this.TextBox_BrowserLocation.Text;
 
             dialogFile.Filter = "Web Browser executable (.exe)|*.exe";
             dialogFile.FilterIndex = 1;
@@ -52,7 +53,7 @@ namespace wpf_imageCrawler.GUI
                 resultSelectedPath = dialogFile.FileName;
             }
 
-            textBox_browserLocation.Text = resultSelectedPath;
+            TextBox_BrowserLocation.Text = resultSelectedPath;
         }
 
         private void button_setting_cancel_Click(object sender, RoutedEventArgs e)
@@ -62,26 +63,39 @@ namespace wpf_imageCrawler.GUI
 
         private void button_setting_save_close_Click(object sender, RoutedEventArgs e)
         {
-            this.mainWindow.UserSetting.UserSettingData.BrowserPath = this.textBox_browserLocation.Text;
+            this.mainWindow.UserSetting.UserSettingData.BrowserPath = this.TextBox_BrowserLocation.Text;
             try
             {
-                this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte = Int32.Parse(this.textBox_minimumImageSize.Text);
+                this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte = Int32.Parse(this.TextBox_MinimumImageSize.Text);
             }
             catch
             {
                 this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte = this.mainWindow.UserSetting.DefaultUserSettingData.MinImageSizeInByte;
             }
-            finally
+
+            try
             {
-                this.mainWindow.UserSetting.UserSettingData = this.mainWindow.UserSetting.saveUserSettings();
+                this.mainWindow.UserSetting.UserSettingData.OrderStartingNumber = Int32.Parse(this.TextBox_OrderStartingNumber.Text);
             }
+            catch
+            {
+                this.mainWindow.UserSetting.UserSettingData.OrderStartingNumber = this.mainWindow.UserSetting.DefaultUserSettingData.OrderStartingNumber;
+            }
+
+            this.mainWindow.UserSetting.UserSettingData = this.mainWindow.UserSetting.saveUserSettings();
             Close();
         }
 
         private void button_setting_reset_Click(object sender, RoutedEventArgs e)
         {
-            this.textBox_browserLocation.Text = this.mainWindow.UserSetting.DefaultUserSettingData.BrowserPath;
-            this.textBox_minimumImageSize.Text = this.mainWindow.UserSetting.DefaultUserSettingData.MinImageSizeInByte.ToString();
+            this.TextBox_BrowserLocation.Text = this.mainWindow.UserSetting.DefaultUserSettingData.BrowserPath;
+            this.TextBox_MinimumImageSize.Text = this.mainWindow.UserSetting.DefaultUserSettingData.MinImageSizeInByte.ToString();
+            this.TextBox_OrderStartingNumber.Text = this.mainWindow.UserSetting.DefaultUserSettingData.OrderStartingNumber.ToString();
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = FieldValidator.IsNumberText(e.Text);
         }
     }
 }

@@ -183,14 +183,14 @@ namespace wpf_imageCrawler.src.service
         {
             // Create image location directory
             string fullPath = FilesManagement.CreateDirectoryIfNotExist(settingData.DownloadLocation, websiteData.Title);
-            FieldValidator? fieldValidator = new FieldValidator();
             if (string.IsNullOrEmpty(fullPath)) return 0;
 
             // Initialize Downloader
             ImageDownloader downloader = new ImageDownloader();
             int numberImageDownloaded = 0;
+            int orderStartingNumber = settingData.OrderStartingNumber;
 
-            for(int index = 0; index < websiteData.ImageLinks.Count; index++)
+            for(int index = 0; index < websiteData.ImageLinks.Count; index++, orderStartingNumber++)
             {
                 updateView_ProcessBar(index + 1, curViewInstance);
                 
@@ -199,15 +199,14 @@ namespace wpf_imageCrawler.src.service
                     return numberImageDownloaded;
                 }
 
-                if (fieldValidator.isValidURL(websiteData.ImageLinks[index]))
+                if (FieldValidator.isValidURL(websiteData.ImageLinks[index]))
                 {
-                    bool isDownloaded = await downloader.DownloadImageAsync(fullPath, websiteData.ImageLinks[index], index + 1, settingData.MinImageSizeInByte);
+                    bool isDownloaded = await downloader.DownloadImageAsync(fullPath, websiteData.ImageLinks[index], orderStartingNumber, settingData.MinImageSizeInByte);
                     if (isDownloaded) numberImageDownloaded++;
                 }
             }
 
             // clean up
-            fieldValidator = null;
             downloader.Dispose();
             GC.Collect();
             GC.WaitForPendingFinalizers();

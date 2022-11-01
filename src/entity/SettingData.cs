@@ -13,19 +13,14 @@ namespace wpf_imageCrawler.src.entity
         private string downloadLocation;
         private string browserPath;
         private int minImageSizeInByte;
+        private int orderStartingNumber;
 
         public SettingData()
         {
             this.downloadLocation = "";
             this.browserPath = "";
             this.minImageSizeInByte = 0;
-        }
-
-        public SettingData(string downloadLoction, string browserPath, int minImageSizeInByte)
-        {
-            this.downloadLocation = downloadLoction ?? throw new ArgumentNullException(nameof(downloadLoction));
-            this.browserPath = browserPath ?? throw new ArgumentNullException(nameof(browserPath));
-            this.minImageSizeInByte = minImageSizeInByte;
+            this.OrderStartingNumber = 1;
         }
 
         public static SettingData loadDefaultSettingData()
@@ -34,6 +29,7 @@ namespace wpf_imageCrawler.src.entity
             defaultSettingData.downloadLocation = KnownFolders.GetPath(KnownFolder.Downloads);
             defaultSettingData.browserPath = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe";
             defaultSettingData.minImageSizeInByte = 10240;
+            defaultSettingData.orderStartingNumber = 1;
 
             return defaultSettingData;
 
@@ -43,5 +39,6 @@ namespace wpf_imageCrawler.src.entity
         public int MinImageSizeInByte { get => minImageSizeInByte; set => minImageSizeInByte = value; }
         public string DownloadLocation { get => downloadLocation; set => downloadLocation = value; }
         public int Id { get => id; set => id = value; }
+        public int OrderStartingNumber { get => orderStartingNumber; set => orderStartingNumber = value; }
     }
 }

@@ -8,13 +8,10 @@ using System.Xml.XPath;
 
 namespace wpf_imageCrawler.src.controller
 {
-    internal class FieldValidator
+    public static class FieldValidator
     {
-        public FieldValidator()
-        {
-        }
 
-        public bool isValidAbsoluteURL(string url)
+        public static bool isValidAbsoluteURL(string url)
         {
             if (string.IsNullOrEmpty(url))
                 return false;
@@ -22,7 +19,7 @@ namespace wpf_imageCrawler.src.controller
             return Uri.IsWellFormedUriString(url, UriKind.Absolute);
         }
 
-        public bool isValidURL(string url)
+        public static bool isValidURL(string url)
         {
             if (string.IsNullOrEmpty(url))
                 return false;
@@ -30,7 +27,7 @@ namespace wpf_imageCrawler.src.controller
             return Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute);
         }
 
-        public bool isValidPathSelector(string path)
+        public static bool isValidPathSelector(string path)
         {
             try
             {
@@ -46,14 +43,14 @@ namespace wpf_imageCrawler.src.controller
             }
         }
 
-        public bool isValidRequiredInput(string url, string pathSelector)
+        public static bool isValidRequiredInput(string url, string pathSelector)
         {
-            if (this.isValidAbsoluteURL(url) && this.isValidPathSelector(pathSelector)) 
+            if (isValidAbsoluteURL(url) && isValidPathSelector(pathSelector)) 
                 return true;
             return false;
         }
 
-        public bool isValidOptionalInput(string page2URL, string page3URL, string fromPage, string toPage)
+        public static bool isValidOptionalInput(string page2URL, string page3URL, string fromPage, string toPage)
         {
             if (string.IsNullOrEmpty(fromPage) || string.IsNullOrEmpty(toPage))
                 return false;
@@ -71,15 +68,15 @@ namespace wpf_imageCrawler.src.controller
                 return false;
             }
 
-            if (this.isValidAbsoluteURL(page2URL) && this.isValidAbsoluteURL(page3URL))
+            if (isValidAbsoluteURL(page2URL) && isValidAbsoluteURL(page3URL))
                 return true;
             
             return false;
         }
 
-        public string fixURL(string url)
+        public static string fixURL(string url)
         {
-            if (this.isValidURL(url))
+            if (isValidURL(url))
             {
                 if (Uri.IsWellFormedUriString(url, UriKind.Relative))
                 {
@@ -96,6 +93,12 @@ namespace wpf_imageCrawler.src.controller
             }
 
             return url;
+        }
+
+        public static bool IsNumberText(string text)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            return regex.IsMatch(text);
         }
     }
 }
