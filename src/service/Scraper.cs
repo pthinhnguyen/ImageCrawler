@@ -54,7 +54,19 @@ namespace wpf_imageCrawler.src.service
                     {
                         ;
                     }
-                    
+
+                    // Wait for loading
+                    try
+                    {
+
+                        int timeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
+                        await PageInstance.WaitForTimeoutAsync(timeout).WaitAsync(token);
+                    }
+                    catch (Exception ex)
+                    {
+                        ;
+                    }
+
                     // Scroll to the bottom
                     try
                     {
@@ -70,7 +82,7 @@ namespace wpf_imageCrawler.src.service
                     try
                     {
                         
-                        int timeout = (int)TimeSpan.FromSeconds(7).TotalMilliseconds;
+                        int timeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
                         await PageInstance.WaitForTimeoutAsync(timeout).WaitAsync(token);
                     }
                     catch (Exception ex)

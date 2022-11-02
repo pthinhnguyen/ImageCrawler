@@ -10,14 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\config.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="imageCrawler.ico" />
-    <Content Include="Resources\config.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
