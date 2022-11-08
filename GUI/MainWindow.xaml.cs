@@ -71,9 +71,7 @@ namespace wpf_imageCrawler
             this.Textbox_AttributeSelector.Text = "src";
 
             /** Test **/
-            this.TextBox_MainURL.Text = @"https://ww4.mangakakalot.tv/chapter/manga-iz960034/chapter-79";
-            this.TextBox_XPathSelector.Text = "//img[@style=\"min-height:500px;\"]";
-            this.Textbox_AttributeSelector.Text = "data-src";
+            ;
         }
 
         public UserSetting UserSetting { get => userSetting; set => userSetting = value; }
