@@ -33,9 +33,10 @@ namespace wpf_imageCrawler
         private static string downloadLocation = KnownFolders.GetPath(KnownFolder.Downloads);
         private static FolderBrowserDialog dialogFolder = new FolderBrowserDialog();
 
-        // private SettingData settingData;
-        private WebsiteData websiteData;
+        private UserRequestData userRequest;
+        private List<WebsiteData>? websiteList;
         private UserSetting userSetting;
+        private int numberImageLinks;
 
         private CancellationTokenSource? cancelTokenAnalyze;
         private CancellationTokenSource? cancelTokenDownload;
@@ -45,28 +46,34 @@ namespace wpf_imageCrawler
             InitializeComponent();
             this.Closing += MainWindow_Closing;
 
-            this.websiteData = new WebsiteData();
+            this.userRequest = new UserRequestData();
+            this.websiteList = new List<WebsiteData>();
             this.userSetting = UserSetting.Instance;
-            int test = 0;
-            test++;
+            this.numberImageLinks = 0;
            
             this.Button_Download.IsEnabled = false;
-            this.TextBox_DonwloadLocation.Text = this.UserSetting.UserSettingData.DownloadLocation;
+            this.TextBox_DonwloadLocation.Text = this.userSetting.UserSettingData.DownloadLocation;
             this.CheckBox_EnablePageSeriesDownload.IsChecked = false;
             this.TextBox_Page2URL.IsEnabled = false;
             this.TextBox_Page3URL.IsEnabled = false;
             this.Textbox_FromPage.IsEnabled = false;
             this.Textbox_ToPage.IsEnabled = false;
+            this.ComboBox_DiffFolderEach.IsEnabled = false;
             this.ProgressBar_Indicator.IsIndeterminate = false;
             this.Button_FixImageLinks.Visibility = Visibility.Hidden;
             this.Button_Analyze_Cancel.Visibility = Visibility.Hidden;
             this.Button_Download_Cancel.Visibility = Visibility.Hidden;
-
-            /** Test **/
+            this.ComboBox_CreateNewFolder.SelectedIndex = (this.userSetting.UserSettingData.CreateNewFolder) ? 1 : 0;
+            this.ComboBox_DiffFolderEach.SelectedIndex = (this.userSetting.UserSettingData.DiffFolderEach) ? 1 : 0;
+            this.resetDataGrid_ImageLinks();
 
             this.TextBox_XPathSelector.Text = "//img";
             this.Textbox_AttributeSelector.Text = "src";
 
+            /** Test **/
+            this.TextBox_MainURL.Text = @"https://ww4.mangakakalot.tv/chapter/manga-iz960034/chapter-79";
+            this.TextBox_XPathSelector.Text = "//img[@style=\"min-height:500px;\"]";
+            this.Textbox_AttributeSelector.Text = "data-src";
         }
 
         public UserSetting UserSetting { get => userSetting; set => userSetting = value; }
@@ -97,6 +104,7 @@ namespace wpf_imageCrawler
             }
 
             TextBox_DonwloadLocation.Text = resultSelectedPath;
+            this.userSetting.UserSettingData.DownloadLocation = TextBox_DonwloadLocation.Text;
         }
 
         private void CheckBox_EnablePageSeriesDownload_Checked(object sender, RoutedEventArgs e)
@@ -105,19 +113,21 @@ namespace wpf_imageCrawler
             this.TextBox_Page3URL.IsEnabled = true;
             this.Textbox_FromPage.IsEnabled = true;
             this.Textbox_ToPage.IsEnabled = true;
+            this.ComboBox_DiffFolderEach.IsEnabled = true;
         }
 
         private void CheckBox_EnablePageSeriesDownload_Unchecked(object sender, RoutedEventArgs e)
         {
-            this.TextBox_Page2URL.Text = "";
+            /*this.TextBox_Page2URL.Text = "";
             this.TextBox_Page3URL.Text = "";
             this.Textbox_FromPage.Text = "";
-            this.Textbox_ToPage.Text = "";
+            this.Textbox_ToPage.Text = "";*/
             
             this.TextBox_Page2URL.IsEnabled = false;
             this.TextBox_Page3URL.IsEnabled = false;
             this.Textbox_FromPage.IsEnabled = false;
             this.Textbox_ToPage.IsEnabled = false;
+            this.ComboBox_DiffFolderEach.IsEnabled = false;
         }
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
@@ -132,37 +142,6 @@ namespace wpf_imageCrawler
             settingsDialog.Left = this.Left + 40;
 
             settingsDialog.Show();
-        }
-
-        private async void Button_Download_Click(object sender, RoutedEventArgs e)
-        {
-            this.resetDetailInfomationResultView();
-
-            if (!this.AreFieldsValid()) return;
-            if (this.websiteData.ImageLinks is null || this.websiteData.ImageLinks.Count == 0)
-            {
-                this.TextBlock_ResultView_ProcessDescription.Text = "NO Image Found to Download";
-                return;
-            }
-            if (this.cancelTokenDownload is not null) this.cancelTokenDownload.Dispose();
-            this.cancelTokenDownload = new CancellationTokenSource();
-
-            this.Button_Download.IsEnabled = false;
-            this.Button_Analyze.IsEnabled = false;
-            this.ProgressBar_Indicator.IsIndeterminate = false;
-            this.Button_Download.Visibility = Visibility.Hidden;
-            this.Button_Download_Cancel.Visibility = Visibility.Visible;
-            this.TextBlock_ResultView_ProcessDescription.Text = "Downloading...";
-
-            int numberDownloadedImage = await Scraper.downloadImages(this.websiteData, this.UserSetting.UserSettingData, this, this.cancelTokenDownload.Token);
-
-            this.Button_Analyze.IsEnabled = true;
-            this.Button_Download.IsEnabled = true;
-            this.Button_Download.Visibility = Visibility.Visible;
-            this.Button_Download_Cancel.Visibility = Visibility.Hidden;
-            this.TextBlock_ResultView_ProcessDescription.Text = "Finished Downloading";
-            this.TextBlock_ResultView_NumberOfImageLinks.Text = "Number of Image URLs: " + this.websiteData.ImageLinks.Count;
-            this.TextBlock_ResultView_NumberOfImageDownloaded.Text = "Number of Downloaded Images: " + numberDownloadedImage;
         }
 
         private async void Button_Analyze_Click(object sender, RoutedEventArgs e)
@@ -180,24 +159,28 @@ namespace wpf_imageCrawler
             this.Button_FixImageLinks.Visibility = Visibility.Hidden;
             this.Button_Analyze.Visibility = Visibility.Hidden;
             this.Button_Analyze_Cancel.Visibility = Visibility.Visible;
-            this.TextBox_ImageLinks.Text = "";
+            this.resetDataGrid_ImageLinks();
             this.TextBlock_ResultView_NumberOfImageLinks.Text = "";
             this.TextBlock_ResultView_ProcessDescription.Text = "Getting Image Links...";
 
-            this.websiteData.MainURL = TextBox_MainURL.Text;
-            this.websiteData.Page2URL = string.IsNullOrEmpty(TextBox_Page2URL.Text) ? "" : TextBox_Page2URL.Text;
-            this.websiteData.Page3URL = string.IsNullOrEmpty(TextBox_Page3URL.Text) ? "" : TextBox_Page3URL.Text;
-            this.websiteData.FromPage = string.IsNullOrEmpty(Textbox_FromPage.Text) ? 0 : Int16.Parse(Textbox_FromPage.Text);
-            this.websiteData.ToPage = string.IsNullOrEmpty(Textbox_ToPage.Text) ? 0 : Int16.Parse(Textbox_ToPage.Text);
-            this.websiteData.XpathSelector = string.IsNullOrEmpty(TextBox_XPathSelector.Text) ? "" : TextBox_XPathSelector.Text;
-            this.websiteData.Attribute = string.IsNullOrEmpty(Textbox_AttributeSelector.Text) ? "" : Textbox_AttributeSelector.Text;
+            this.userRequest.MainURL = TextBox_MainURL.Text;
+            this.userRequest.Page2URL = string.IsNullOrEmpty(TextBox_Page2URL.Text) ? "" : TextBox_Page2URL.Text;
+            this.userRequest.Page3URL = string.IsNullOrEmpty(TextBox_Page3URL.Text) ? "" : TextBox_Page3URL.Text;
+            this.userRequest.FromPage = string.IsNullOrEmpty(Textbox_FromPage.Text) ? 0 : int.Parse(Textbox_FromPage.Text);
+            this.userRequest.ToPage = string.IsNullOrEmpty(Textbox_ToPage.Text) ? 0 : int.Parse(Textbox_ToPage.Text);
+            this.userRequest.XpathSelector = string.IsNullOrEmpty(TextBox_XPathSelector.Text) ? "" : TextBox_XPathSelector.Text;
+            this.userRequest.Attribute = string.IsNullOrEmpty(Textbox_AttributeSelector.Text) ? "" : Textbox_AttributeSelector.Text;
 
             if (this.CheckBox_EnablePageSeriesDownload.IsChecked == true)
-                (this.websiteData.Title, this.websiteData.ImageLinks) = await Scraper.filterMutiplePageByXPath(this.websiteData, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
+            {
+                this.websiteList = await Scraper.analyzeMutipleWebsites(this.userRequest, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
+            }
             else
-                (this.websiteData.Title, this.websiteData.ImageLinks) = await Scraper.filterSinglePageByXPath(this.websiteData, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
+            {
+                this.websiteList = await Scraper.analyzeSingleWebsite(this.userRequest, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
+            }
 
-            this.updateTextBox_ImageLinks();
+            this.updateDataGrid_ImageLinks();
 
             this.ProgressBar_Indicator.IsIndeterminate = false;
             this.Button_FixImageLinks.Visibility = Visibility.Visible;
@@ -205,24 +188,73 @@ namespace wpf_imageCrawler
             this.Button_Analyze_Cancel.Visibility = Visibility.Hidden;
             this.Button_Analyze.IsEnabled = true;
             this.Button_Download.IsEnabled = true;
-            this.TextBlock_ResultView_ProcessDescription.Text = "Finished Analyzing";
-            this.TextBlock_ResultView_NumberOfImageLinks.Text = "Number of Image URLs: " + ((this.websiteData.ImageLinks is not null) ? this.websiteData.ImageLinks.Count : 0);
+            
+            if (this.cancelTokenAnalyze is null || this.cancelTokenAnalyze.Token.IsCancellationRequested) 
+                this.TextBlock_ResultView_ProcessDescription.Text = "Analyzing Canceled";
+            else 
+                this.TextBlock_ResultView_ProcessDescription.Text = "Finished Analyzing";
+
+            this.TextBlock_ResultView_NumberOfImageLinks.Text = "Number of Image URLs: " + this.numberImageLinks;
             this.ProgressBar_Indicator.Minimum = 0;
-            this.ProgressBar_Indicator.Maximum = ((this.websiteData.ImageLinks is not null) ? this.websiteData.ImageLinks.Count : 0);
+            this.ProgressBar_Indicator.Maximum = this.numberImageLinks;
+        }
+
+        private async void Button_Download_Click(object sender, RoutedEventArgs e)
+        {
+            this.resetDetailInfomationResultView();
+
+            if (!this.AreFieldsValid()) return;
+            if (this.numberImageLinks == 0 || this.websiteList is null || this.websiteList.Count == 0)
+            {
+                this.TextBlock_ResultView_ProcessDescription.Text = "NO Image Found to Download";
+                return;
+            }
+            if (this.cancelTokenDownload is not null) this.cancelTokenDownload.Dispose();
+            this.cancelTokenDownload = new CancellationTokenSource();
+
+            this.Button_Download.IsEnabled = false;
+            this.Button_Analyze.IsEnabled = false;
+            this.ProgressBar_Indicator.IsIndeterminate = false;
+            this.Button_Download.Visibility = Visibility.Hidden;
+            this.Button_Download_Cancel.Visibility = Visibility.Visible;
+            this.TextBlock_ResultView_ProcessDescription.Text = "Downloading...";
+
+            int numberDownloadedImage = await Scraper.downloadImages(this.websiteList, this.UserSetting.UserSettingData, this, this.cancelTokenDownload.Token);
+
+            this.Button_Analyze.IsEnabled = true;
+            this.Button_Download.IsEnabled = true;
+            this.Button_Download.Visibility = Visibility.Visible;
+            this.Button_Download_Cancel.Visibility = Visibility.Hidden;
+            
+            if (this.cancelTokenDownload is null || this.cancelTokenDownload.Token.IsCancellationRequested)
+                this.TextBlock_ResultView_ProcessDescription.Text = "Downloading Canceled";
+            else this.TextBlock_ResultView_ProcessDescription.Text = "Finished Downloading";
+
+            this.updateDataGrid_ImageLinks();
+            this.TextBlock_ResultView_NumberOfImageLinks.Text = "Number of Image URLs: " + this.numberImageLinks;
+            this.TextBlock_ResultView_NumberOfImageDownloaded.Text = "Number of Downloaded Images: " + numberDownloadedImage;
         }
 
         private void Button_FixImageLinks_Click(object sender, RoutedEventArgs e)
         {
-            List<string> tmp = websiteData.ImageLinks;
-
-            if (websiteData.ImageLinks is not null && websiteData.ImageLinks.Count > 0)
+            if (this.websiteList is null) return;
+            
+            for (int websiteIndex = 0; websiteIndex < this.websiteList.Count; websiteIndex++)
             {
-                for (int i = 0; i < websiteData.ImageLinks.Count; i++)
+                for(int imageLinkIndex = 0; imageLinkIndex < this.websiteList[websiteIndex].ImageLinkItemList.Count; imageLinkIndex++)
                 {
-                    websiteData.ImageLinks[i] = FieldValidator.fixURL(websiteData.ImageLinks[i]);
+                    string fixedURL = FieldValidator.fixURL(this.websiteList[websiteIndex].ImageLinkItemList[imageLinkIndex].ImageLink);
+
+                    if (string.IsNullOrEmpty(fixedURL)) 
+                        this.websiteList[websiteIndex].ImageLinkItemList.RemoveAt(imageLinkIndex);
+                    else 
+                        this.websiteList[websiteIndex].ImageLinkItemList[imageLinkIndex].ImageLink = fixedURL;
                 }
+
+                if (this.websiteList[websiteIndex].ImageLinkItemList.Count == 0) this.websiteList.RemoveAt(websiteIndex);
             }
-            this.updateTextBox_ImageLinks();
+
+            this.updateDataGrid_ImageLinks();
         }
 
         private void Button_Analyze_Cancel_Click(object sender, RoutedEventArgs e)
@@ -253,20 +285,40 @@ namespace wpf_imageCrawler
             this.cancelTokenDownload = null;
         }
 
+        private void ComboBox_CreateNewFolder_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ComboBox_CreateNewFolder.SelectedIndex == 1)
+            {
+                this.userSetting.UserSettingData.CreateNewFolder = true;
+            }
+            else
+            {
+                this.ComboBox_DiffFolderEach.SelectedIndex = 0;
+                this.userSetting.UserSettingData.CreateNewFolder = false;
+                this.userSetting.UserSettingData.DiffFolderEach = false;
+            }
+
+
+            this.userSetting.UserSettingData.CreateNewFolder = (this.ComboBox_CreateNewFolder.SelectedIndex == 1) ? true : false;
+        }
+
+        private void ComboBox_DiffFolderEach_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ComboBox_DiffFolderEach.SelectedIndex == 1)
+            {
+                this.ComboBox_CreateNewFolder.SelectedIndex = 1;
+                this.userSetting.UserSettingData.DiffFolderEach = true;
+                this.userSetting.UserSettingData.CreateNewFolder = true;
+            }
+            else
+            {
+                this.userSetting.UserSettingData.DiffFolderEach = false;
+            }
+        }
+
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            /*var t = Task.Run(async () =>
-            {
-                try
-                {
-                    // this.userSetting.saveUserSettings();
-                    // await Scraper.disposeBrowser().WaitAsync(TimeSpan.FromSeconds(5));
-                }
-                finally
-                {
-                    e.Cancel = false;
-                }
-            });*/
+            this.userSetting.saveUserSettings();
             e.Cancel = false;
         }
 
@@ -280,7 +332,7 @@ namespace wpf_imageCrawler
                 {
                     System.Windows.MessageBox.Show(
                         "Invalid Required Fields",
-                        "Download Error",
+                        "Analyze Error",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error
                     );
@@ -297,7 +349,7 @@ namespace wpf_imageCrawler
                 {
                     System.Windows.MessageBox.Show(
                         "Invalid Required Fields",
-                        "Download Error",
+                        "Analyze Error",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error
                     );
@@ -314,7 +366,7 @@ namespace wpf_imageCrawler
                 {
                     System.Windows.MessageBox.Show(
                         "Invalid Optional Fields",
-                        "Download Error",
+                        "Analyze Error",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error
                     );
@@ -324,19 +376,51 @@ namespace wpf_imageCrawler
             return true;
         }
 
-        private void updateTextBox_ImageLinks()
+        private void updateDataGrid_ImageLinks()
         {
-            if (this.websiteData.ImageLinks is not null && this.websiteData.ImageLinks.Count > 0)
+            this.numberImageLinks = 0;
+            int count = 0;
+
+            List <ImageLinkItem> imageLinkList = new List <ImageLinkItem>();
+
+            if (this.websiteList is null || this.websiteList.Count == 0)
             {
-                string formattedOuputString = "";
-                foreach (string imageLink in this.websiteData.ImageLinks)
-                    formattedOuputString = formattedOuputString + imageLink + "\n";
-                this.TextBox_ImageLinks.Text = formattedOuputString;
+                this.DataGrid_ImageLink.ItemsSource = imageLinkList;
+                return;
             }
-            else
+            
+            foreach (WebsiteData website in this.websiteList)
             {
-                this.TextBox_ImageLinks.Text = "No Content\n";
+                ImageLinkItem firstImageLinkOfTheWebsite = new ImageLinkItem(
+                    ++count,
+                    website.ImageLinkItemList.Count, 
+                    website.Url, 
+                    "");
+                imageLinkList.Add(firstImageLinkOfTheWebsite);
+
+                for (int imageLinkIndex = 0; imageLinkIndex < website.ImageLinkItemList.Count; imageLinkIndex++)
+                {
+                    this.numberImageLinks++;
+
+                    ImageLinkItem imageLinkItemOfTheWebsite = new ImageLinkItem(
+                        ++count,
+                        imageLinkIndex + 1, 
+                        website.Url, 
+                        website.ImageLinkItemList[imageLinkIndex].ImageLink, 
+                        website.ImageLinkItemList[imageLinkIndex].IsDownloaded);
+                    imageLinkList.Add(imageLinkItemOfTheWebsite);
+                }
             }
+
+            this.DataGrid_ImageLink.ItemsSource = imageLinkList;
+            this.TextBlock_ResultView_NumberOfImageLinks.Text = "Number of Image URLs: " + this.numberImageLinks;
+        }
+
+        void resetDataGrid_ImageLinks()
+        {
+            List<ImageLinkItem> emtptyDataGrid = new List<ImageLinkItem>();
+            emtptyDataGrid.Add(new ImageLinkItem(0, 0, "", "", false));
+            this.DataGrid_ImageLink.ItemsSource = emtptyDataGrid;
         }
 
         private void resetDetailInfomationResultView()
@@ -349,7 +433,11 @@ namespace wpf_imageCrawler
 
         public void updateProgressBar_Indicator(int curWorkingPosition)
         {
-            if (this.websiteData.ImageLinks is not null && this.websiteData.ImageLinks.Count > 0)
+            if (this.numberImageLinks == 0 || this.websiteList is null || this.websiteList.Count == 0)
+            {
+                this.ProgressBar_Indicator.Value = this.ProgressBar_Indicator.Maximum;
+            }
+            else
             {
                 this.ProgressBar_Indicator.Value = curWorkingPosition;
             }

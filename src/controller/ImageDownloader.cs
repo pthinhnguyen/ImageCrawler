@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Zip;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
@@ -17,82 +18,103 @@ namespace wpf_imageCrawler.src.controller
 {
     public interface IImageDownloader
     {
-        Task<bool> DownloadImageAsync(string directoryPath, string imageLink, int imageLinkOrder = 0, int minimumSizeByte = 1024);
+        Task<bool> DownloadImageAsync(string directoryPath, string imageLink, int imageLinkOrder = 1, int minimumSizeByte = 1024);
     }
 
     public class ImageDownloader : IImageDownloader, IDisposable
     {
         private bool _disposed;
         private WebClient client;
-        private bool isFreshClient;
 
         public ImageDownloader()
         {
             this._disposed = false;
             this.client = new WebClient();
-            this.isFreshClient = false;
+        }
+
+        private void initializeClientDownloader()
+        {
+            this.client.Credentials = new System.Net.NetworkCredential("userid", "pw");
+            this.client.Headers.Add("User-Agent", "Other");
         }
 
         public async Task<bool> DownloadImageAsync(string directoryPath, string imageLink, int imageLinkOrder = 1, int minimumSizeByte = 1024)
         {
-            if (this._disposed) { throw new ObjectDisposedException(GetType().FullName); }
+            if (this._disposed) return false;
 
             // generate image path
             ImageData imageData = new ImageData(imageLink);
-            string imageFileNameWithLinkOrderPrefix = imageLinkOrder.ToString() + "_" + imageData.ImageName;
+            string orderPrefix_FileName_optionalFileExtension = imageLinkOrder.ToString() + "_" + imageData.ImageName;
 
             // initialize client downloader
-            if (!isFreshClient)
-            {
-                client.Credentials = new System.Net.NetworkCredential("userid", "pw");
-                client.Headers.Add("User-Agent", "Other");
-                this.isFreshClient = true;
-            }
-
-            // Download image
+            initializeClientDownloader();
             bool isDownloaded = false;
 
             // save image without knowing the image format
             if (string.IsNullOrEmpty(imageData.ImageExtension)) 
             {
-                string completePath = directoryPath + "\\" + imageFileNameWithLinkOrderPrefix + ".jpg";
-                if (!FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName))
+                string completePath = directoryPath + "\\" + orderPrefix_FileName_optionalFileExtension + ".jpg";
+                for (int attempts = 0; attempts < 3; attempts++)
                 {
                     try
                     {
+                        if (FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName)) break;
+
                         Stream stream = await client.OpenReadTaskAsync(imageLink);
                         Bitmap bitmap = new Bitmap(stream);
 
-                        if (bitmap != null)
-                            bitmap.Save(completePath, ImageFormat.Jpeg);
+                        if (bitmap != null) bitmap.Save(completePath, ImageFormat.Jpeg);
 
                         stream.Flush();
                         stream.Close();
 
                         isDownloaded = !FilesManagement.DeleteFileIfSizeLessThan(completePath, minimumSizeByte);
+                        break;
                     }
-                    catch { ; }
+                    catch (WebException)
+                    {
+                        if (FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName))
+                            FilesManagement.deleteFile(completePath);
+                        this.initializeClientDownloader();
+                    }
+                    catch (Exception ex)
+                    {
+                        isDownloaded = false;
+                        break;
+                    }
                 }
             }
             
             // save image knowing the image format
             else
             {
-                string completePath = directoryPath + "\\" + imageFileNameWithLinkOrderPrefix;
-                if (!FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName))
+                string completePath = directoryPath + "\\" + orderPrefix_FileName_optionalFileExtension;
+                for (int attempts = 0; attempts < 3; attempts++)
                 {
                     try
                     {
+                        if (FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName)) break;
+                            
                         await this.client.DownloadFileTaskAsync(imageLink, completePath);
                         isDownloaded = !FilesManagement.DeleteFileIfSizeLessThan(completePath, minimumSizeByte);
+                        break;
                     }
-                    catch { ; }
+                    catch (WebException)
+                    {
+                        if (FilesManagement.IsFileExistRelativePath(directoryPath, imageData.ImageName))
+                            FilesManagement.deleteFile(completePath);
+                        this.initializeClientDownloader();
+                    }
+                    catch (Exception ex)
+                    {
+                        isDownloaded = false;
+                        break;
+                    }
                 }
             }
 
             // clean up
             this.client.Dispose();
-            this.isFreshClient = false;
 
             return isDownloaded;
         }

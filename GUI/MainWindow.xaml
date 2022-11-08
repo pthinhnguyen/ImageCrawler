@@ -5,20 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_imageCrawler"
         mc:Ignorable="d"
-        Title="Image Crawler" Height="768" Width="1336" Background="#f2f3f4">
+        Title="Image Crawler" Height="768" Width="1336" Background="#f2f3f4"
+        WindowStartupLocation="CenterScreen" >
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/TextBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/Button.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/CheckBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/ComboBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/DataGrid.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
-    <Grid x:Name="Main" Margin="10,10,10,10" >
+    <Grid x:Name="MainWindows" Margin="10,10,10,10" >
         <Grid.RowDefinitions>
             <RowDefinition Height = "Auto" />
             <RowDefinition Height = "Auto" />
             <RowDefinition Height = "Auto" />
             <RowDefinition Height = "*" />
             <RowDefinition Height = "Auto" />
-            <RowDefinition Height = "Auto" />
         </Grid.RowDefinitions>
-        <Grid x:Name="UserInput_SinglePage" Grid.Row="0">
+
+        <Grid x:Name="UserInput_SinglePage" Grid.Row="0" Margin="0,0,0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "150" />
                 <ColumnDefinition Width = "*" />
@@ -30,12 +40,21 @@
                 <RowDefinition Height = "*" />
                 <RowDefinition Height = "*" />
                 <RowDefinition Height = "*" />
+                <RowDefinition Height = "*" />
             </Grid.RowDefinitions>
 
-            <Label HorizontalAlignment="Left" FontSize="24" Grid.Row="0" Grid.ColumnSpan="2">Single Page Download (Required):</Label>
+            <Grid x:Name="PanelSingle" Grid.ColumnSpan="3" Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label HorizontalAlignment="Left" FontSize="18" Grid.Column="0">Single Page Download (Required)</Label>
+                <Separator Grid.Column="0" VerticalAlignment="Bottom"/>
+            </Grid>
+            
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0">Main URL</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0">Download Location</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="3" Grid.Column="0">XPath Selector</Label>
+            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="4" Grid.Column="0">Create New Folder?</Label>
 
             <TextBox x:Name="TextBox_MainURL" Grid.Row="1" Grid.Column="1" Background="#f8f8ff"
                     Margin="1,1,1,1"
@@ -62,8 +81,8 @@
             <Button x:Name="button_downloadLocationBrowse" Grid.Row="2" Grid.Column="2"
                     FontSize="16"
                     Margin="9,1,1,1"
-                    Click="Button_DownloadLocationBrowse_Click">
-                Browse
+                    Click="Button_DownloadLocationBrowse_Click" 
+                    Content="&#128270; Browse">
             </Button>
 
             <Grid x:Name="Grid_XPath" Grid.Row="3" Grid.Column="1">
@@ -94,9 +113,18 @@
                 </TextBox>
             </Grid>
 
+            <ComboBox x:Name="ComboBox_CreateNewFolder" Grid.Row="4" Grid.Column="1" 
+                        Margin="1,1,1,1"
+                        Width="128"
+                        FontSize="16"
+                        HorizontalAlignment="Left"
+                        HorizontalContentAlignment="Left" SelectionChanged="ComboBox_CreateNewFolder_SelectionChanged" >
+                <ComboBoxItem Content="No"></ComboBoxItem>
+                <ComboBoxItem Content="Yes"></ComboBoxItem>
+            </ComboBox>
         </Grid>
 
-        <Grid x:Name="UserInput_PageSeries" Grid.Row="1">
+        <Grid x:Name="UserInput_PageSeries" Grid.Row="1" Margin="0,5,0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "150" />
                 <ColumnDefinition Width = "*" />
@@ -108,22 +136,32 @@
                 <RowDefinition Height = "*" />
                 <RowDefinition Height = "*" />
                 <RowDefinition Height = "*" />
+                <RowDefinition Height = "*" />
             </Grid.RowDefinitions>
 
-            <Label HorizontalAlignment="Left" FontSize="24" Grid.Row="0" Grid.ColumnSpan="2">Page Series Download (Optional):</Label>
-            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0">Page 2 URL</Label>
-            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0">Page 3 URL</Label>
-
-            <CheckBox x:Name="CheckBox_EnablePageSeriesDownload" Grid.Row="0" Grid.Column="2"
+            <Grid x:Name="PanelSeries" Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label HorizontalAlignment="Left" FontSize="18" Grid.Column="0">Page Series Download (Optional)</Label>
+                <CheckBox x:Name="CheckBox_EnablePageSeriesDownload" Grid.Column="3"
                     FontSize="16" 
-                    Margin="9,1,1,1"
+                    Margin="10,0,0,0"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Left"
+                    VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Left"
                     Checked="CheckBox_EnablePageSeriesDownload_Checked"
                     Unchecked="CheckBox_EnablePageSeriesDownload_Unchecked">
-                Enable
-            </CheckBox>
+                    Enable
+                </CheckBox>
+                <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
+            </Grid>
+            
+            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0">Page 2 URL</Label>
+            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0">Page 3 URL</Label>
+            <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="4" Grid.Column="0">Diff Folder Each?</Label>
 
             <TextBox x:Name="TextBox_Page2URL" Grid.Row="1" Grid.Column="1" Background="#f8f8ff"
                     Margin="1,1,1,1"
@@ -168,88 +206,114 @@
                 </TextBox>
             </StackPanel>
 
+            <ComboBox x:Name="ComboBox_DiffFolderEach" Grid.Row="4" Grid.Column="1" 
+                        Margin="1,1,1,1"
+                        Width="128"
+                        FontSize="16"
+                        HorizontalAlignment="Left"
+                        HorizontalContentAlignment="Left" SelectionChanged="ComboBox_DiffFolderEach_SelectionChanged" >
+                <ComboBoxItem Content="No"></ComboBoxItem>
+                <ComboBoxItem Content="Yes"></ComboBoxItem>
+            </ComboBox>
         </Grid>
 
-        <Grid Grid.Row="2">
-
-
+        <Grid x:Name="ActionArea" Grid.Row="2" Margin="0,5,0,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "*" />
                 <ColumnDefinition Width = "*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation = "Horizontal" Grid.Column="0" Margin="0,10,0,10">
+            <Grid x:Name="PanelAction" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Orientation = "Horizontal" >
                 <Grid x:Name="Analyze_Cancel">
                     <Button x:Name="Button_Analyze" 
-                    Margin="0,1,5,1"
-                    FontSize="16"
-                    Width="128"
-                    Height="32" Click="Button_Analyze_Click" >
-                        Analyze
+                        Margin="0,0,5,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_Analyze_Click"
+                        Content="&#127760; Analyze" >
                     </Button>
                     <Button x:Name="Button_Analyze_Cancel" 
-                    Margin="0,1,5,1"
-                    FontSize="16"
-                    Width="128"
-                    Height="32" Click="Button_Analyze_Cancel_Click" >
-                        Cancel
+                        Margin="0,0,5,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_Analyze_Cancel_Click"
+                        Content="&#10060; Cancel" >
                     </Button>
                 </Grid>
 
                 <Grid x:Name="Download_Cancel">
                     <Button x:Name="Button_Download" 
-                    Margin="5,1,1,1"
-                    FontSize="16"
-                    Width="128"
-                    Height="32" Click="Button_Download_Click" >
-                        Download
+                        Margin="5,0,0,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_Download_Click" 
+                        Content="&#11123; Download" >
                     </Button>
                     <Button x:Name="Button_Download_Cancel" 
-                    Margin="0,1,5,1"
-                    FontSize="16"
-                    Width="128"
-                    Height="32" Click="Button_Download_Cancel_Click" >
-                        Cancel
+                        Margin="5,0,0,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_Download_Cancel_Click" 
+                        Content="&#10060; Cancel" >
                     </Button>
                 </Grid>
             </StackPanel>
 
-            <ProgressBar x:Name="ProgressBar_Indicator" Grid.Column="1"
-                             Height="32"
-                             Margin="5,5,5,5" 
-                             IsIndeterminate="True" >
+            <ProgressBar x:Name="ProgressBar_Indicator" Grid.Row="1" Grid.Column="1" 
+                         Background="#f2f3f4"
+                         Foreground="Cyan"
+                         BorderThickness="0"
+                         Height="32" 
+                         IsIndeterminate="True" >
             </ProgressBar>
+
         </Grid>
-        
+
         <Grid x:Name="ProcessView" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width = "*" />
+                <ColumnDefinition Width = "*" />
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
-            <Grid x:Name ="ResultView" Grid.Row="1">
+
+            <Grid x:Name="PanelResultView" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,5,0,10">
+                <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Grid x:Name ="ResultView" Grid.Row="1" Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width = "*" />
                     <ColumnDefinition Width = "*" />
                 </Grid.ColumnDefinitions>
-                
+
                 <Grid x:Name ="ImageLinkResultView" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                        <TextBox x:Name="TextBox_ImageLinks" Background="#f8f8ff"
-                                 TextWrapping="Wrap" 
-                                 BorderThickness="0"
-                                 IsReadOnly = "True" >
-                        </TextBox>
-                    </ScrollViewer>
+
+                    <DataGrid x:Name="DataGrid_ImageLink" Grid.Row="0" Margin="5,0,5,5"
+                              HorizontalAlignment="Stretch" 
+                              VerticalAlignment="Stretch"
+                              IsReadOnly="False" />
                 </Grid>
 
-                <Grid x:Name="DetailInfomationResultView" Grid.Column="1">
-                    <StackPanel Orientation = "Vertical" Grid.Row="1" Margin="5,0,5,5" >
+                <Grid x:Name="DetailInfomationResultView" Grid.Column="1" Margin="5,0,5,5">
+                    <StackPanel Orientation = "Vertical" Grid.Row="1" >
                         <TextBlock x:Name="TextBlock_ResultView_ProcessDescription"
                                    FontSize="16"></TextBlock>
                         <TextBlock x:Name="TextBlock_ResultView_NumberOfImageLinks"
@@ -259,31 +323,36 @@
                     </StackPanel>
                 </Grid>
             </Grid>
-        </Grid>
 
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width = "*" />
-                <ColumnDefinition Width = "*" />
-            </Grid.ColumnDefinitions>
-
-            <Button x:Name="Button_FixImageLinks" Grid.Column="0"
-                            Margin="0,5,0,5"
-                            FontSize="16"
-                            Width="128"
-                            Height="32" Click="Button_FixImageLinks_Click" >
-                Fix Image Links
+            <Button x:Name="Button_FixImageLinks" Grid.Row="2" Grid.Column="0"
+                        Margin="0,5,0,5"
+                        FontSize="16"
+                        Width="160"
+                        Height="32" Click="Button_FixImageLinks_Click"
+                        Content="&#10003; Fix Image Links">
             </Button>
         </Grid>
-        
-        <StackPanel Orientation = "Horizontal" Grid.Row="5">
-            <Button x:Name="button_Setting" 
-                Margin="0,1,1,1"
-                FontSize="16"
-                Width="128"
-                Height="32" Click="Button_Setting_Click" >
-                Setting
-            </Button>
-        </StackPanel>
+
+
+        <Grid x:Name="OtherViewNavigation" Grid.Row="4" Margin="0,5,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="PanelOtherViewNavigation" Grid.Row="0" Margin="0,0,0,10">
+                <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
+            </Grid>
+            
+            <StackPanel Orientation = "Horizontal" Grid.Row="1">
+                <Button x:Name="button_Setting" 
+                    Margin="0,1,1,1"
+                    FontSize="16"
+                    Width="128"
+                    Height="32" Click="Button_Setting_Click"
+                    Content="&#9881; Settings">
+                </Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

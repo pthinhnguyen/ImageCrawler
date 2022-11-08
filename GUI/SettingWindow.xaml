@@ -5,125 +5,249 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_imageCrawler.GUI"
         mc:Ignorable="d"
-        Title="Setting" Height="450" Width="800" Background="#f2f3f4">
-    <Grid x:Name="Setting" Margin="10,10,10,10">
+        Title="Setting" Height="450" Width="800" Background="#CDF0EA">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/TextBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/Button.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/CheckBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/ComboBox.xaml"/>
+                <ResourceDictionary Source="/wpf_imageCrawler;component/GUI/Style/TabControl.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height = "*" />
             <RowDefinition Height = "Auto" />
-            <RowDefinition Height = "*" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="Setting_Values" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width = "150" />
-                <ColumnDefinition Width = "*" />
-                <ColumnDefinition Width = "150" />
-            </Grid.ColumnDefinitions>
+        <TabControl x:Name="SettingTabs" Margin="10" BorderBrush="#E0D8B0" Background="#f2f3f4">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Browser" FontSize="16" />
+                    </StackPanel>
+                </TabItem.Header>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height = "*" />
-                <RowDefinition Height = "Auto" />
-                <RowDefinition Height = "Auto" />
-                <RowDefinition Height = "*" />
-            </Grid.RowDefinitions>
+                <Grid x:Name="BrowserContent" Margin="5" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width = "200" />
+                        <ColumnDefinition Width = "Auto" />
+                        <ColumnDefinition Width = "*" />
+                        <ColumnDefinition Width = "150" />
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0" TextWrapping="Wrap"
-                   Margin="1,1,1,1" TextAlignment="Right">
-                Web Browser Location
-            </TextBlock>
-            <TextBlock HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0" 
-                       TextAlignment="Right"
-                       TextWrapping="Wrap"
-                       Margin="1,1,5,1">
-                Minimum Image Size (bytes)
-            </TextBlock>
-            <TextBlock HorizontalAlignment="Right" FontSize="16" Grid.Row="3" Grid.Column="0" 
-                       TextAlignment="Right"
-                       TextWrapping="Wrap"
-                       Margin="1,1,5,1">
-                Order Starting Number
-            </TextBlock>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height = "Auto" />
+                        <RowDefinition Height = "Auto" />
+                        <RowDefinition Height = "Auto" />
+                        <RowDefinition Height = "Auto" />
+                    </Grid.RowDefinitions>
 
-            <TextBox x:Name="TextBox_BrowserLocation" Grid.Row="1" Grid.Column="1" Background="#f8f8ff"
-                        Margin="5,1,1,1"
-                        Text=""
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               HorizontalAlignment="Right" 
+                               FontSize="16" 
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                    Use Built-in Browser
+                    </TextBlock>
+                    <ComboBox x:Name="ComboBox_BuiltInBrowser" Grid.Row="0" Grid.Column="1"
+                        Margin="5"
                         FontSize="16"
-                        TextAlignment="Left"
-                        Height="32" 
-                        HorizontalAlignment="Stretch"
-                        VerticalContentAlignment="Center" 
-                        IsReadOnly = "True" >
-            </TextBox>
-
-            <TextBox x:Name="TextBox_MinimumImageSize" Grid.Row="2" Grid.Column="1" Background="#f8f8ff"
-                        Margin="5,1,1,1"
-                        Text=""
-                        FontSize="16"
-                        TextAlignment="Left"
-                        Height="32" 
-                        Width="128"
                         HorizontalAlignment="Left"
-                        VerticalContentAlignment="Center" 
-                        PreviewTextInput="NumberValidationTextBox" 
-                        MaxLength="9" >
-            </TextBox>
+                        HorizontalContentAlignment="Left" SelectionChanged="ComboBox_BuiltInBrowser_SelectionChanged">
+                        <ComboBoxItem Content="No"></ComboBoxItem>
+                        <ComboBoxItem Content="Yes"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock x:Name="TextBlock_Hint_BuiltInBrowser"  Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" 
+                                HorizontalAlignment="Right" 
+                                FontSize="16" 
+                                VerticalAlignment="Center" 
+                                TextWrapping="Wrap"
+                                Margin="5"
+                                Foreground="OrangeRed" >
+                                    External Browser does NOT support Silent Mode
+                    </TextBlock>
 
-            <TextBox x:Name="TextBox_OrderStartingNumber" Grid.Row="3" Grid.Column="1" Background="#f8f8ff"
-                        Margin="5,1,1,1"
-                        Text=""
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               HorizontalAlignment="Right" 
+                               FontSize="16" 
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                    External Browser Location
+                    </TextBlock>
+
+                    <TextBox x:Name="TextBox_BrowserLocation" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                            Margin="5"
+                            Text=""
+                            FontSize="16"
+                            TextAlignment="Left"
+                            Height="32" 
+                            HorizontalAlignment="Stretch"
+                            VerticalContentAlignment="Center" 
+                            IsReadOnly = "True"/>
+
+                    <Button x:Name="Button_BrowserFileBrowse" Grid.Row="1" Grid.Column="3"
+                            FontSize="16"
+                            Height="32"
+                            Margin="5" Click="Button_BrowserFileBrowse_Click"
+                            Content="&#128270; Browse">
+                    </Button>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0"
+                               HorizontalAlignment="Right" 
+                               FontSize="16" 
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                    Silent Mode
+                    </TextBlock>
+                    <ComboBox x:Name="ComboBox_SilentMode" Grid.Row="2" Grid.Column="1"
+                        Margin="5"
                         FontSize="16"
-                        TextAlignment="Left"
-                        Height="32" 
-                        Width="128"
                         HorizontalAlignment="Left"
-                        VerticalContentAlignment="Center" 
-                        PreviewTextInput="NumberValidationTextBox"
-                        MaxLength="9" >
-            </TextBox>
+                        HorizontalContentAlignment="Left" SelectionChanged="ComboBox_SilentMode_SelectionChanged">
+                        <ComboBoxItem Content="No"></ComboBoxItem>
+                        <ComboBoxItem Content="Yes"></ComboBoxItem>
+                    </ComboBox>
 
-
-            <Button x:Name="button_browserFileBrowse" Grid.Row="1" Grid.Column="2"
+                    <TextBlock Grid.Row="3" Grid.Column="0"
+                               HorizontalAlignment="Right" 
+                               FontSize="16" 
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                    Speed Mode
+                    </TextBlock>
+                    <ComboBox x:Name="ComboBox_SpeedMode" Grid.Row="3" Grid.Column="1"
+                        Margin="5"
                         FontSize="16"
-                        Height="32"
-                        Margin="9,1,1,1" Click="Button_BrowserFileBrowse_Click" >
-                Browse
-            </Button>
+                        HorizontalAlignment="Left"
+                        HorizontalContentAlignment="Left" SelectionChanged="ComboBox_FastMode_SelectionChanged">
+                        <ComboBoxItem Content="Normal"></ComboBoxItem>
+                        <ComboBoxItem Content="Fast"></ComboBoxItem>
+                    </ComboBox>
 
-        </Grid>
-        
-        <Grid x:Name="Setting_Button_Action" Grid.Row="2" 
-              VerticalAlignment="Bottom">
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Files" FontSize="16" />
+                    </StackPanel>
+                    
+                </TabItem.Header>
+                <Grid x:Name="FileContent" Margin="5" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width = "200" />
+                        <ColumnDefinition Width = "Auto" />
+                        <ColumnDefinition Width = "Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height = "Auto" />
+                        <RowDefinition Height = "Auto" />
+                        <RowDefinition Height = "Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                               HorizontalAlignment="Right" 
+                               FontSize="16" 
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                Minimum Image Size
+                    </TextBlock>
+                    <TextBox x:Name="TextBox_MinimumImageSize" Grid.Row="0" Grid.Column="1"
+                            Margin="5"
+                            Text=""
+                            FontSize="16"
+                            TextAlignment="Left"
+                            Height="32" 
+                            Width="128"
+                            HorizontalAlignment="Left"
+                            VerticalContentAlignment="Center" 
+                            PreviewTextInput="NumberValidationTextBox" 
+                            MaxLength="9" />
+                    <TextBlock Grid.Row="0" Grid.Column="2" 
+                               HorizontalAlignment="Left" 
+                               VerticalAlignment="Center"
+                               FontSize="16" 
+                               TextAlignment="Left"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                (bytes)
+                    </TextBlock>
+
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                               HorizontalAlignment="Right" 
+                               FontSize="16"
+                               VerticalAlignment="Center" 
+                               TextAlignment="Right"
+                               TextWrapping="Wrap"
+                               Margin="5">
+                                Order Starting Number
+                    </TextBlock>
+                    <TextBox x:Name="TextBox_OrderStartingNumber" Grid.Row="1" Grid.Column="1"
+                            Margin="5"
+                            Text=""
+                            FontSize="16"
+                            TextAlignment="Left"
+                            Height="32" 
+                            Width="128"
+                            HorizontalAlignment="Left"
+                            VerticalContentAlignment="Center" 
+                            PreviewTextInput="NumberValidationTextBox"
+                            MaxLength="9" />
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Grid x:Name="Setting_Button_Action" Grid.Row="1" Margin="5" 
+                                VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "*" />
                 <ColumnDefinition Width = "*" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation = "Horizontal" Grid.Column="0" HorizontalAlignment="Left">
-                <Button x:Name="button_setting_reset" 
-                Margin="0,1,5,1"
-                FontSize="16"
-                Width="128"
-                Height="32" Click="button_setting_reset_Click" >
-                    Reset
+                <Button x:Name="Button_SettingReset" 
+                        Margin="5,0,0,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_SettingReset_Click"
+                        Content="&#129529; Reset">
                 </Button>
             </StackPanel>
-            
-            <StackPanel Orientation = "Horizontal" Grid.Column="1" HorizontalAlignment="Right">
-                <Button x:Name="button_setting_cancel" 
-                Margin="0,1,5,1"
-                FontSize="16"
-                Width="128"
-                Height="32" Click="button_setting_cancel_Click" >
-                    Cancel
+
+            <StackPanel Orientation = "Horizontal" Grid.Column="1" HorizontalAlignment="Right" Margin="5">
+                <Button x:Name="Button_SettingCancel" 
+                        Margin="0,0,5,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32" Click="Button_SettingCancel_Click"
+                        Content="&#10060; Cancel" >
                 </Button>
-                <Button x:Name="button_setting_save_close" 
-                Margin="5,1,1,1"
-                FontSize="16"
-                Width="128"
-                Height="32" Click="button_setting_save_close_Click" >
-                    Save and Close
+                <Button x:Name="Button_SettingSaveExit"
+                        Margin="5,0,0,0"
+                        FontSize="16"
+                        Width="160"
+                        Height="32" Click="Button_SettingSaveExit_Click"
+                        Content="&#128466; Save and Exit">
                 </Button>
             </StackPanel>
         </Grid>
-        
+
     </Grid>
 </Window>

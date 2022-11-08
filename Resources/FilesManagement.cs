@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace wpf_imageCrawler.Resources
 {
     public static class FilesManagement
     {
+        private static readonly int DirectoryNameMaxLength = 64;
+        
         private static string NormalizeDirectoryName(string input)
         {
+            
             input = input.Replace("/", string.Empty);
             input = input.Replace("\\", string.Empty);
             input = input.Replace("<", string.Empty);
@@ -22,6 +27,14 @@ namespace wpf_imageCrawler.Resources
             input = input.Replace("?", string.Empty);
             input = input.Replace("*", string.Empty);
             input = input.Replace("\"", string.Empty);
+            input = Regex.Replace(input, @"\t|\n|\r", "");
+            input = Regex.Replace(input, @"\s+", " ");
+            input = Regex.Replace(input, "[^0-9A-Za-z ]", "");
+            input = input.Trim();
+            input = input.Replace(" ", "_");
+
+            if (input.Length > DirectoryNameMaxLength)
+                input = input.Substring(0, DirectoryNameMaxLength);
 
             return input;
         }
@@ -37,30 +50,40 @@ namespace wpf_imageCrawler.Resources
             return asciiStr;
         }
 
-        public static string CreateDirectoryIfNotExist(string path, string directoryName)
+        public static string CreateDirectoryIfNotExist(string relativePath, string directoryName = "")
         {
-            directoryName = RemoveToneMark(directoryName);
-            directoryName = NormalizeDirectoryName(directoryName);
-            string fullPath = "";
+            if (string.IsNullOrEmpty(relativePath)) return "";
+
+            string completeAbsolutePath = "";
+            
+            if (string.IsNullOrEmpty(directoryName)) completeAbsolutePath = relativePath;
+            else
+            {
+                try
+                {
+                    directoryName = RemoveToneMark(directoryName);
+                    directoryName = NormalizeDirectoryName(directoryName);
+
+                    string curDirectoryName = new DirectoryInfo(relativePath).Name;
+                    if (curDirectoryName == directoryName) completeAbsolutePath = relativePath;
+                    else completeAbsolutePath = relativePath + "\\" + directoryName;
+                }
+                catch
+                {
+                    completeAbsolutePath = relativePath;
+                }
+            }
 
             try
             {
-                string curDirectoryName = new DirectoryInfo(path).Name;
-                if (curDirectoryName == directoryName) 
-                {
-                    fullPath = path;
-                }
-                else
-                {
-                    fullPath = path + "\\" + directoryName;
-                    System.IO.Directory.CreateDirectory(fullPath);
-                }
-                return fullPath;
+                System.IO.Directory.CreateDirectory(completeAbsolutePath);
             }
             catch
             {
-                return "";
+                completeAbsolutePath = "";
             }
+            
+            return completeAbsolutePath;
         }
 
         public static bool DeleteFileIfSizeLessThan(string path, int minimumSizeByte)
@@ -75,6 +98,15 @@ namespace wpf_imageCrawler.Resources
                 }
             }
             return false;
+        }
+
+        public static void deleteFile(string path)
+        {
+            try
+            {
+                FileInfo file = new FileInfo(path);
+                if (file.Exists) file.Delete();
+            } catch { ; }
         }
 
         public static bool IsFileExistAbsolutePath(string path)

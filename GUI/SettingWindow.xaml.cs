@@ -35,9 +35,31 @@ namespace wpf_imageCrawler.GUI
             this.mainWindow = mainWindow;
             InitializeComponent();
 
+            // Browser
+            this.ComboBox_BuiltInBrowser.SelectedIndex = (this.mainWindow.UserSetting.UserSettingData.UseBuitInBrowser) ? 1 : 0;
             this.TextBox_BrowserLocation.Text = this.mainWindow.UserSetting.UserSettingData.BrowserPath;
+            this.ComboBox_SilentMode.SelectedIndex = (this.mainWindow.UserSetting.UserSettingData.SilentMode) ? 1 : 0;
+            this.ComboBox_SpeedMode.SelectedIndex = (this.mainWindow.UserSetting.UserSettingData.SpeedMode) ? 1 : 0;
+
+            // Files
             this.TextBox_MinimumImageSize.Text = this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte.ToString();
             this.TextBox_OrderStartingNumber.Text = this.mainWindow.UserSetting.UserSettingData.OrderStartingNumber.ToString();
+
+            if (this.mainWindow.UserSetting.UserSettingData.UseBuitInBrowser)
+            {
+                this.ComboBox_SilentMode.IsEnabled = true;
+                this.TextBox_BrowserLocation.IsEnabled = false;
+                this.Button_BrowserFileBrowse.IsEnabled = false;
+                this.TextBlock_Hint_BuiltInBrowser.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                this.ComboBox_SilentMode.IsEnabled = false;
+                this.ComboBox_SilentMode.SelectedIndex = 0;
+                this.TextBox_BrowserLocation.IsEnabled = true;
+                this.Button_BrowserFileBrowse.IsEnabled = true;
+                this.TextBlock_Hint_BuiltInBrowser.Visibility = Visibility.Visible;
+            }
         }
 
         private void Button_BrowserFileBrowse_Click(object sender, RoutedEventArgs e)
@@ -56,14 +78,18 @@ namespace wpf_imageCrawler.GUI
             TextBox_BrowserLocation.Text = resultSelectedPath;
         }
 
-        private void button_setting_cancel_Click(object sender, RoutedEventArgs e)
+        private void Button_SettingCancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private void button_setting_save_close_Click(object sender, RoutedEventArgs e)
+        private void Button_SettingSaveExit_Click(object sender, RoutedEventArgs e)
         {
+            this.mainWindow.UserSetting.UserSettingData.UseBuitInBrowser = (this.ComboBox_BuiltInBrowser.SelectedIndex == 1) ? true : false;
             this.mainWindow.UserSetting.UserSettingData.BrowserPath = this.TextBox_BrowserLocation.Text;
+            this.mainWindow.UserSetting.UserSettingData.SilentMode = (this.ComboBox_SilentMode.SelectedIndex == 1) ? true : false;
+            this.mainWindow.UserSetting.UserSettingData.SpeedMode = (this.ComboBox_SpeedMode.SelectedIndex == 1) ? true : false;
+
             try
             {
                 this.mainWindow.UserSetting.UserSettingData.MinImageSizeInByte = Int32.Parse(this.TextBox_MinimumImageSize.Text);
@@ -86,9 +112,13 @@ namespace wpf_imageCrawler.GUI
             Close();
         }
 
-        private void button_setting_reset_Click(object sender, RoutedEventArgs e)
+        private void Button_SettingReset_Click(object sender, RoutedEventArgs e)
         {
+            this.ComboBox_BuiltInBrowser.SelectedIndex = (this.mainWindow.UserSetting.DefaultUserSettingData.UseBuitInBrowser) ? 1 : 0;
             this.TextBox_BrowserLocation.Text = this.mainWindow.UserSetting.DefaultUserSettingData.BrowserPath;
+            this.ComboBox_SilentMode.SelectedIndex = (this.mainWindow.UserSetting.DefaultUserSettingData.SilentMode) ? 1 : 0;
+            this.ComboBox_SpeedMode.SelectedIndex = (this.mainWindow.UserSetting.DefaultUserSettingData.SpeedMode) ? 1 : 0;
+
             this.TextBox_MinimumImageSize.Text = this.mainWindow.UserSetting.DefaultUserSettingData.MinImageSizeInByte.ToString();
             this.TextBox_OrderStartingNumber.Text = this.mainWindow.UserSetting.DefaultUserSettingData.OrderStartingNumber.ToString();
         }
@@ -96,6 +126,35 @@ namespace wpf_imageCrawler.GUI
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             e.Handled = FieldValidator.IsNumberText(e.Text);
+        }
+
+        private void ComboBox_BuiltInBrowser_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.ComboBox_BuiltInBrowser.SelectedIndex == 0)
+            {
+                this.TextBox_BrowserLocation.IsEnabled = true;
+                this.Button_BrowserFileBrowse.IsEnabled = true;
+                this.TextBlock_Hint_BuiltInBrowser.Visibility = Visibility.Visible;
+                this.ComboBox_SilentMode.IsEnabled = false;
+                this.ComboBox_SilentMode.SelectedIndex = 0;
+            }
+            else
+            {
+                this.TextBox_BrowserLocation.IsEnabled = false;
+                this.Button_BrowserFileBrowse.IsEnabled = false;
+                this.TextBlock_Hint_BuiltInBrowser.Visibility = Visibility.Hidden;
+                this.ComboBox_SilentMode.IsEnabled = true;
+            }
+        }
+
+        private void ComboBox_SilentMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ;
+        }
+
+        private void ComboBox_FastMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ;
         }
     }
 }
