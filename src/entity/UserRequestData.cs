@@ -15,6 +15,7 @@ namespace wpf_imageCrawler.src.entity
         private int toPage;
         private string xpathSelector;
         private string attribute;
+        private List<string> importedURLs;
 
         public UserRequestData()
         {
@@ -25,6 +26,7 @@ namespace wpf_imageCrawler.src.entity
             this.toPage = 0;
             this.xpathSelector = "";
             this.attribute = "";
+            this.importedURLs = new List<string>();
         }
 
         public UserRequestData(UserRequestData userRequestData)
@@ -36,6 +38,7 @@ namespace wpf_imageCrawler.src.entity
             this.toPage = userRequestData.toPage;
             this.xpathSelector = userRequestData.xpathSelector;
             this.attribute = userRequestData.attribute;
+            this.importedURLs = userRequestData.importedURLs;
         }
 
         public string MainURL { get => mainURL; set => mainURL = value; }
@@ -45,5 +48,6 @@ namespace wpf_imageCrawler.src.entity
         public int ToPage { get => toPage; set => toPage = value; }
         public string XpathSelector { get => xpathSelector; set => xpathSelector = value; }
         public string Attribute { get => attribute; set => attribute = value; }
+        public List<String> ImportedURLs { get => importedURLs; set => importedURLs = value; }
     }
 }

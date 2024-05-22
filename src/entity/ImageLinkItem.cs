@@ -9,7 +9,7 @@ namespace wpf_imageCrawler.src.entity
     public class ImageLinkItem
     {
         public int ID { get; set; }
-        public int Number { get; set; }
+        public int? Number { get; set; }
         public string WebsiteURL { get; set; }
         public string ImageLink { get; set; }
         public bool IsDownloaded { get; set; }

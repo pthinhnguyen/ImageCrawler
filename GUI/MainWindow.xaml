@@ -50,7 +50,7 @@
                 <Label HorizontalAlignment="Left" FontSize="18" Grid.Column="0">Single Page Download (Required)</Label>
                 <Separator Grid.Column="0" VerticalAlignment="Bottom"/>
             </Grid>
-            
+
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0">Main URL</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0">Download Location</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="3" Grid.Column="0">XPath Selector</Label>
@@ -158,7 +158,7 @@
                 </CheckBox>
                 <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
             </Grid>
-            
+
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="1" Grid.Column="0">Page 2 URL</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="2" Grid.Column="0">Page 3 URL</Label>
             <Label HorizontalAlignment="Right" FontSize="16" Grid.Row="4" Grid.Column="0">Diff Folder Each?</Label>
@@ -183,7 +183,7 @@
                     VerticalContentAlignment="Center" >
             </TextBox>
 
-            <StackPanel Orientation = "Horizontal" Grid.Row="3" Grid.Column="1" > 
+            <StackPanel Orientation = "Horizontal" Grid.Row="3" Grid.Column="1" >
                 <Label FontSize="16" >From Page</Label>
                 <TextBox x:Name="Textbox_FromPage" Background="#f8f8ff"
                     Margin="1,1,1,1"
@@ -222,7 +222,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width = "*" />
                 <ColumnDefinition Width = "*" />
@@ -252,20 +252,29 @@
 
                 <Grid x:Name="Download_Cancel">
                     <Button x:Name="Button_Download" 
-                        Margin="5,0,0,0"
+                        Margin="5,0,5,0"
                         FontSize="16"
                         Width="128"
                         Height="32" Click="Button_Download_Click" 
                         Content="&#11123; Download" >
                     </Button>
                     <Button x:Name="Button_Download_Cancel" 
-                        Margin="5,0,0,0"
+                        Margin="5,0,5,0"
                         FontSize="16"
                         Width="128"
                         Height="32" Click="Button_Download_Cancel_Click" 
                         Content="&#10060; Cancel" >
                     </Button>
                 </Grid>
+
+                <Button x:Name="Button_Import" 
+                        Margin="5,0,5,0"
+                        FontSize="16"
+                        Width="128"
+                        Height="32"
+                        Click="Button_Import_Click"
+                        Content="&#128229; Import" >
+                </Button>
             </StackPanel>
 
             <ProgressBar x:Name="ProgressBar_Indicator" Grid.Row="1" Grid.Column="1" 
@@ -355,15 +364,22 @@
             <Grid x:Name="PanelOtherViewNavigation" Grid.Row="0" Margin="0,0,0,10">
                 <Separator Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
             </Grid>
-            
+
             <StackPanel Orientation = "Horizontal" Grid.Row="1">
                 <Button x:Name="button_Setting" 
-                    Margin="0,1,1,1"
+                    Margin="0,1,5,1"
                     FontSize="16"
                     Width="128"
                     Height="32" Click="Button_Setting_Click"
                     Content="&#9881; Settings">
                 </Button>
+                <Button x:Name="Button_PDF_Generator"
+                    Margin="5,1,1,1"
+                    FontSize="16"
+                    Width="156"
+                    Height="32"
+                    Click="Button_PDF_Generator_Click"
+                    Content="&#128199; PDF Generator" />
             </StackPanel>
         </Grid>
     </Grid>

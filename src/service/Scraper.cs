@@ -1,22 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
 using wpf_imageCrawler.src.entity;
-using PuppeteerSharp;
 using HtmlAgilityPack;
 using wpf_imageCrawler.Resources;
-using System.Windows.Controls;
 using wpf_imageCrawler.src.controller;
-using System.Security.Policy;
 using System.Threading;
-using System.Xml;
-using Microsoft.VisualBasic.Logging;
-using System.Windows.Documents;
-using Newtonsoft.Json.Linq;
-using System.Reflection;
 
 namespace wpf_imageCrawler.src.service
 {
@@ -184,6 +173,28 @@ namespace wpf_imageCrawler.src.service
             }
 
             return resultWebsiteList;
+        }
+
+        public static async Task<List<WebsiteData>?> analyzeImportedWebsites(UserRequestData userRequest, SettingData userSettingData, CancellationToken token)
+        {
+            var result = new List<WebsiteData>();
+            if (userRequest.ImportedURLs is null || userRequest.ImportedURLs.Count == 0) return null;
+            foreach(var url in userRequest.ImportedURLs)
+            {
+                if (token.IsCancellationRequested) break;
+                UserRequestData userRequestForEachWorkingURL = new UserRequestData();
+                userRequestForEachWorkingURL.MainURL = url;
+                userRequestForEachWorkingURL.XpathSelector = userRequest.XpathSelector;
+                userRequestForEachWorkingURL.Attribute = userRequest.Attribute;
+
+                WebsiteData? resultWebsiteData = await filterPageByXPath(
+                    userRequestForEachWorkingURL,
+                    userSettingData,
+                    token);
+
+                if (resultWebsiteData is not null) result.Add(resultWebsiteData);
+            }
+            return result;
         }
 
         public static async Task<int> downloadImages(List<WebsiteData>? websiteList, SettingData userSettingData, MainWindow curViewInstance, CancellationToken token)

@@ -25,6 +25,7 @@ using wpf_imageCrawler.src.service;
 using System.Security.Policy;
 using System.Threading;
 using System.ComponentModel;
+using System.IO;
 
 namespace wpf_imageCrawler
 {
@@ -186,7 +187,11 @@ namespace wpf_imageCrawler
             this.userRequest.XpathSelector = string.IsNullOrEmpty(TextBox_XPathSelector.Text) ? "" : TextBox_XPathSelector.Text;
             this.userRequest.Attribute = string.IsNullOrEmpty(Textbox_AttributeSelector.Text) ? "" : Textbox_AttributeSelector.Text;
 
-            if (this.CheckBox_EnablePageSeriesDownload.IsChecked == true)
+            if (this.userRequest.ImportedURLs != null && this.userRequest.ImportedURLs.Count > 0)
+            {
+                this.websiteList = await Scraper.analyzeImportedWebsites(this.userRequest, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
+            }
+            else if ((this.userRequest.ImportedURLs is null || this.userRequest.ImportedURLs.Count == 0) &&  this.CheckBox_EnablePageSeriesDownload.IsChecked == true)
             {
                 this.websiteList = await Scraper.analyzeMutipleWebsites(this.userRequest, this.userSetting.UserSettingData, this.cancelTokenAnalyze.Token);
             }
@@ -246,6 +251,7 @@ namespace wpf_imageCrawler
 
             this.Button_Download.IsEnabled = false;
             this.Button_Analyze.IsEnabled = false;
+            this.Button_Import.IsEnabled = false;
             this.ProgressBar_Indicator.IsIndeterminate = false;
             this.Button_Download.Visibility = Visibility.Hidden;
             this.Button_Download_Cancel.Visibility = Visibility.Visible;
@@ -255,6 +261,7 @@ namespace wpf_imageCrawler
 
             this.Button_Analyze.IsEnabled = true;
             this.Button_Download.IsEnabled = true;
+            this.Button_Import.IsEnabled = true;
             this.Button_Download.Visibility = Visibility.Visible;
             this.Button_Download_Cancel.Visibility = Visibility.Hidden;
 
@@ -332,13 +339,65 @@ namespace wpf_imageCrawler
             updateDataGrid_ImageLinks();
         }
 
+        private void Button_Import_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.DefaultExt = ".txt"; // Default file extension
+            dialog.Filter = "Text documents (.txt)|*.txt"; // Filter files by extension
+
+            // Show save file dialog box
+            bool? result = dialog.ShowDialog();
+
+            // Process save file dialog box results
+            if (result is null || result.Value == false) return;
+
+            string fullPath = dialog.FileName;
+            var urls = new List<string>();
+            var displayedUrls = new List<ImageLinkItem>();
+            var id = 0;
+
+            foreach (var line in File.ReadLines(fullPath))
+            {                
+                string cleaned = Regex.Replace(line, @"\t|\n|\r", "");
+
+                if (FieldValidator.isValidHTTP_HTTPS_URL(cleaned))
+                {
+                    id += 1;
+                    urls.Add(cleaned);
+                    displayedUrls.Add(new ImageLinkItem
+                    {
+                        ID = id,
+                        Number = null,
+                        WebsiteURL = cleaned,
+                    });
+                }
+            }
+
+            if (urls.Count > 0)
+            {
+                userRequest.ImportedURLs = urls;
+                this.Button_Download.IsEnabled = false;
+                this.ComboBox_DiffFolderEach.IsEnabled = true;
+                this.ComboBox_DiffFolderEach.SelectedIndex = 1;
+                this.DataGrid_ImageLink.ItemsSource = displayedUrls;
+            }
+        }
+
+        private void Button_PDF_Generator_Click(object sender, RoutedEventArgs e)
+        {
+            var pdfGenerator = new PDFGenerator();
+            pdfGenerator.Top = this.Top + 100;
+            pdfGenerator.Left = this.Left + 40;
+            pdfGenerator.Show();
+        }
+
         private void Button_Setting_Click(object sender, RoutedEventArgs e)
         {
             SettingWindow settingsDialog = new SettingWindow(this);
             settingsDialog.Top = this.Top + 100;
             settingsDialog.Left = this.Left + 40;
 
-            settingsDialog.Show();
+            settingsDialog.ShowDialog();
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -354,6 +413,8 @@ namespace wpf_imageCrawler
 
         private bool AreFieldsValid()
         {
+            if (this.userRequest.ImportedURLs != null && this.userRequest.ImportedURLs.Count > 0) return true;
+            
             if (this.CheckBox_EnablePageSeriesDownload.IsChecked == false)
             {
                 if (FieldValidator.isValidRequiredInput(TextBox_MainURL.Text,
