@@ -27,10 +27,11 @@ namespace wpf_imageCrawler.GUI
     /// </summary>
     public partial class PDFGenerator : Window
     {
+        public static PDFGenerator Instance = new PDFGenerator();
         private List<Folder> folders;
         private string outputLocation;
         
-        public PDFGenerator()
+        private PDFGenerator()
         {
             this.folders = new List<Folder>();
             this.outputLocation = String.Empty;
@@ -139,6 +140,7 @@ namespace wpf_imageCrawler.GUI
 
         private void btnConvertToPDFs_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             foreach (var folder in folders)
             {
                 Document document = new Document(PageSize.A4);
@@ -152,37 +154,44 @@ namespace wpf_imageCrawler.GUI
                         PdfWriter writer = PdfWriter.GetInstance(document, fs);
                         document.Open();
                         writer.Open();
+                        document.SetMargins(25, 25, 25, 25);
 
                         foreach (var imagePath in folder.Files)
                         {
                             // Load the image
-                            iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(imagePath);
+                            var itextSharpImage = iTextSharp.text.Image.GetInstance(imagePath);
 
-                            // Adjust image size if necessary (optional)
-                            if (image.Width > PageSize.A4.Width || image.Height > PageSize.A4.Height)
-                            {
-                                image.ScaleToFit(PageSize.A4.Width, PageSize.A4.Height);
-                            }
+                            // Get the dimension of the image
+                            var imageWidth = itextSharpImage.Width;
+                            var imageHeight = itextSharpImage.Height;
 
-                            // Add the image to a new page
+                            //var itextSharpImage = iTextSharp.text.Image.GetInstance(imagePath);
+
+                            // Add the image to a new page, added 50 to both height and width for padding
+                            document.SetPageSize(new iTextSharp.text.Rectangle(imageWidth + 50, imageHeight + 50));
                             document.NewPage();
-                            document.Add(image);
+                            document.Add(itextSharpImage);
                         }
                         document.Close();
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Handle potential exceptions (e.g., invalid image path)
-                    Console.WriteLine($"Error creating PDF: {ex.Message}");
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                    System.Windows.MessageBox.Show(ex.Message, "Convert to PDF failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                 }
             }
+
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+            System.Windows.MessageBox.Show("Convert to PDF(s) finished!", "Task Done!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private static List<string> getAllImages(string path)
         {
             var files = Directory.EnumerateFiles(path: path, searchPattern: "*.*", searchOption: SearchOption.TopDirectoryOnly)
                 .Where(s => s.EndsWith(".jpg") || s.EndsWith(".jpeg") || s.EndsWith(".png") || s.EndsWith(".gif") || s.EndsWith(".bmp"))
+                .OrderBy(s => s)
                 .ToList();
 
             return files;

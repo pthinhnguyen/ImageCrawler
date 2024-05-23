@@ -385,7 +385,7 @@ namespace wpf_imageCrawler
 
         private void Button_PDF_Generator_Click(object sender, RoutedEventArgs e)
         {
-            var pdfGenerator = new PDFGenerator();
+            var pdfGenerator = PDFGenerator.Instance;
             pdfGenerator.Top = this.Top + 100;
             pdfGenerator.Left = this.Left + 40;
             pdfGenerator.Show();
