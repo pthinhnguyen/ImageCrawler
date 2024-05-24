@@ -251,7 +251,7 @@ namespace wpf_imageCrawler
 
             this.Button_Download.IsEnabled = false;
             this.Button_Analyze.IsEnabled = false;
-            this.Button_Import.IsEnabled = false;
+            this.Button_ImportToAnalyze.IsEnabled = false;
             this.ProgressBar_Indicator.IsIndeterminate = false;
             this.Button_Download.Visibility = Visibility.Hidden;
             this.Button_Download_Cancel.Visibility = Visibility.Visible;
@@ -261,7 +261,7 @@ namespace wpf_imageCrawler
 
             this.Button_Analyze.IsEnabled = true;
             this.Button_Download.IsEnabled = true;
-            this.Button_Import.IsEnabled = true;
+            this.Button_ImportToAnalyze.IsEnabled = true;
             this.Button_Download.Visibility = Visibility.Visible;
             this.Button_Download_Cancel.Visibility = Visibility.Hidden;
 
@@ -339,7 +339,7 @@ namespace wpf_imageCrawler
             updateDataGrid_ImageLinks();
         }
 
-        private void Button_Import_Click(object sender, RoutedEventArgs e)
+        private void Button_ImportToAnalyze_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.DefaultExt = ".txt"; // Default file extension

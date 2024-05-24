@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:wpf_imageCrawler.GUI"
         mc:Ignorable="d"
-        Title="PDF Generator" Height="450" Width="800" Background="#CDF0EA">
+        Title="PDF Generator" Height="700" Width="1200" Background="#CDF0EA">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -23,26 +23,33 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel x:Name="Input" Orientation="Vertical" Grid.Column="0">
-            <StackPanel Name="LoadFolderButtons" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5"> 
-                <Button x:Name="btnSelectSingle"
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel Name="LoadFolderButtons" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
+                <Button 
+                    x:Name="btnSelectSingle"
                     Margin="0,0,5,0"
                     FontSize="16"
                     Width="176"
                     Height="32"
                     Click="btnSelectSingle_Click"
-                    Content="&#128193; Select Single Folder"
-                />
-                <Button x:Name="btnSelectParent"    
+                    Content="&#128193; Select Single Folder"/>
+                <Button 
+                    x:Name="btnSelectParent"    
                     Margin="0,0,5,0"
                     FontSize="16"
                     Width="176"
                     Height="32"
                     Click="btnSelectParent_Click"
-                    Content="&#128194; Select Parent Folder"
-                />
+                    Content="&#128194; Select Parent Folder"/>
             </StackPanel>
-            <DataGrid x:Name="dgInputInfo" Grid.Row="0" Margin="0,5,0,5"
+            <DataGrid 
+                x:Name="dgInputInfo" 
+                Grid.Row="1" 
+                Margin="0,5,0,5"
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch"
                 IsReadOnly="True"
@@ -52,42 +59,46 @@
                     <DataGridTextColumn Header="# Files" Binding="{Binding NumFiles}" />
                 </DataGrid.Columns>
             </DataGrid>
-        </StackPanel>
+        </Grid>
 
-        <StackPanel x:Name="Output" Orientation="Vertical" Grid.Column="1">
-            <Grid Margin="0,5,0,5">
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0" Margin="0,5,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtBoxOutputLocation"
+                <TextBox 
+                    x:Name="txtBoxOutputLocation"
                     Margin="5,0,5,0"
                     Grid.Column="0"
                     Width="Auto"
                     IsReadOnly="True"
-                    TextChanged="txtBoxOutputLocationOnChange"
-                />
-                <Button x:Name="btnBrowseOutputLocation"
+                    TextChanged="txtBoxOutputLocationOnChange"/>
+                <Button 
+                    x:Name="btnBrowseOutputLocation"
                     Grid.Column="1"
                     Margin="5,0,5,0"
                     FontSize="16"
                     Width="212"
                     Height="32"
                     Click="btnBrowseOutputLocation_Click"
-                    Content="&#128270; Browse Output Location"
-                />
+                    Content="&#128270; Browse Output Location"/>
             </Grid>
-            <StackPanel x:Name="GeneratorButtons" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
-                <Button x:Name="btnConvertToPDFs"
-                    Margin="0,0,5,0"
-                    FontSize="16"
-                    Width="176"
-                    Height="32"
-                    Click="btnConvertToPDFs_Click"
-                    IsEnabled="False"
-                    Content="&#128221; Convert to PDF(s)"
-                />
-            </StackPanel>
-        </StackPanel>
+            <Button 
+                x:Name="btnConvertToPDFs"
+                Grid.Row="1"
+                Margin="0,0,5,0"
+                FontSize="16"
+                Width="176"
+                Height="32"
+                Click="btnConvertToPDFs_Click"
+                IsEnabled="False"
+                Content="&#128221; Convert to PDF(s)"/>
+        </Grid>
     </Grid>
 </Window>

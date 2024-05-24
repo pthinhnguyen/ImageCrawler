@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using wpf_imageCrawler.src.entity;
+using iTextSharp.text.pdf.parser;
 
 namespace wpf_imageCrawler.GUI
 {
@@ -191,7 +192,27 @@ namespace wpf_imageCrawler.GUI
         {
             var files = Directory.EnumerateFiles(path: path, searchPattern: "*.*", searchOption: SearchOption.TopDirectoryOnly)
                 .Where(s => s.EndsWith(".jpg") || s.EndsWith(".jpeg") || s.EndsWith(".png") || s.EndsWith(".gif") || s.EndsWith(".bmp"))
-                .OrderBy(s => s)
+                .OrderBy(s =>
+                {
+                    var fileName = System.IO.Path.GetFileName(s);
+
+                    // Split the string by "_"
+                    var parts = fileName.Split('_');
+
+                    // Check if there's a numeric part (at least one element after split)
+                    if (parts.Length > 1)
+                    {
+                        // Parse the first numeric part (assuming it's the relevant one)
+                        int numericPart;
+                        if (int.TryParse(parts[0], out numericPart))
+                        {
+                            // Return a custom object for sorting
+                            return numericPart;
+                        }
+                    }
+
+                    return 0;
+                })
                 .ToList();
 
             return files;
