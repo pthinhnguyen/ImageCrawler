@@ -34,15 +34,23 @@ namespace wpf_imageCrawler.GUI
         
         private PDFGenerator()
         {
+            InitializeComponent();
+
             this.folders = new List<Folder>();
             this.outputLocation = String.Empty;
-            
-            InitializeComponent();
+            this.Closing += Window_Closing;
+
             var dpdDataGrid = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(DataGrid));
             if (dpdDataGrid != null)
             {
                 dpdDataGrid.AddValueChanged(this.dgInputInfo, dgInputInfoOnChange);
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Visibility = Visibility.Hidden;
         }
 
         private void dgInputInfoOnChange(object sender, EventArgs e)
