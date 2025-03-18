@@ -1,25 +1,41 @@
+# ImageCrawler v2.1
 
-# Image Crawler
+**ImageCrawler v2.1** is a simple yet powerful Windows application for downloading images from websites. It empowers users to target specific images using XPath expressions, scrape across multiple pages, and now handle batch downloads with enhanced flexibility. Ideal for efficient image collection, this tool combines a user-friendly interface with robust customization options.
 
-**This is a simple Windows application that allows downloading images from a website. Users can specify what pictures they want to download using XPath. This application also has an optional functionality to download image from the multiple-page website.**
+## Key Features
+- Download images from websites using XPath selectors.
+- Optional multi-page crawling for comprehensive scraping.
+- Batch image downloading for processing multiple images in one go.
+- Multi-browser support (defaults to Microsoft Edge, pre-installed on Windows).
+- Export and import URL lists for seamless workflow management.
+- Built-in PDF creation to compile downloaded images into a single file.
+- Highly configurable settings to optimize speed and organize files.
+- Trial-and-error testing with adjustable browser settings.
+- Directory creation and minimum file size options for better file management.
 
-The complete application can be downloaded from the link below. Just unzip and run the executable file to use. 
+## How to Use
+Download the zip file from the link below, unzip it, and run the executable. No installation required—just launch and start crawling!
 
-Users can choose in the program's settings what web browser is installed on their computer as a web communication module for this application. By default, this application used Microsoft Edge, which should be pre-installed in any Windows OS these days.
+## Technical Details
+- Built with .NET Framework 6.0, PuppeteerSharp 8.0.0, and HtmlAgilityPack 1.11.46.
+- Compatible with Windows 10 and 11 (64-bit).
 
-The program is highly customizable to speed up the downloading process and to organize downloaded files. 
-Users can do trial-and-error runs and modify the program browser settings to fit their specific needs.
-Directory creations and minimum file size can be set to make better file management.
+## What’s New in v2.1
+- Batch downloading for faster, multi-image workflows.
+- Support for multiple browsers with improved flexibility.
+- Export/import links to save and reuse URL lists.
+- PDF creation tool to convert images into a single document.
+- Fully updated UI with enhanced consistency and usability.
+- Fixed all known issues with the downloader and PDF creator.
+- Boosted stability and performance across the board.
 
-> This application was built on .NET Framework 6.0, PuppeteerSharp 8.0.0, and HtmlAgilityPack 1.11.46.
+## Download
+[ImageCrawler v2.1 Zip File](https://mega.nz/file/jwRXUQ6T#sfrGlYJP38cBKQc64PhzJDbMvmpTzXID2IdfuYzf_YM)
 
->**OS Compatibility:** Windows 10 or 11 64-bit version.
+## Screenshots
+![Main Window](/doc/main.jpg)  
+![Settings](/doc/settings.jpg)  
+![PDF Creator](/doc/pdf_creator.jpg)
 
-**Download Link:** [Image Crawler v2.0 Zip File](https://mega.nz/file/2pgFDIKJ#htfG-oJ66rNNsY_PAOaXQ89CepqTOmDAReK3--Q-Izc). 
-This latest version highly improves the UI Experience and the Configurability.
-
-**Screenshots:**
-
-![Main Windows](/doc/main.jpg)
-
-![Settings](/doc/settings.jpg)
+## Notes
+Customize settings to suit your browser and preferences—Microsoft Edge is the default for instant compatibility. Always respect website terms of service when scraping.
